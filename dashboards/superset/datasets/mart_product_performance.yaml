@@ -1,0 +1,105 @@
+{
+  "table_name": "mart_product_performance",
+  "main_dttm_col": "month_start",
+  "currency_code_column": null,
+  "description": "Bộ dữ liệu phân tích Olist đã tuyển chọn: mart_product_performance.",
+  "default_endpoint": null,
+  "offset": 0,
+  "cache_timeout": null,
+  "schema": "gold",
+  "catalog": "lakehouse",
+  "sql": null,
+  "source_db_engine": null,
+  "params": null,
+  "template_params": null,
+  "filter_select_enabled": true,
+  "fetch_values_predicate": null,
+  "extra": null,
+  "uuid": "20000000-0000-4000-8000-000000000007",
+  "columns": [
+    {
+      "column_name": "month_start",
+      "type": "DATE",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "product_category",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_revenue",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "freight_total",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "review_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "average_review_score",
+      "type": "DECIMAL(4,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    }
+  ],
+  "metrics": [
+    {
+      "metric_name": "item_revenue",
+      "verbose_name": "Doanh thu mặt hàng",
+      "metric_type": null,
+      "expression": "SUM(item_revenue)",
+      "description": null,
+      "d3format": "$,.2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "average_review_score",
+      "verbose_name": "Điểm đánh giá trung bình",
+      "metric_type": null,
+      "expression": "SUM(average_review_score * review_count) / NULLIF(SUM(review_count), 0)",
+      "description": null,
+      "d3format": ".2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    }
+  ],
+  "version": "1.0.0",
+  "database_uuid": "10000000-0000-4000-8000-000000000001",
+  "normalize_columns": false,
+  "always_filter_main_dttm": false
+}

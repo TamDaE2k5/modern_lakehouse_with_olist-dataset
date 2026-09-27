@@ -1,0 +1,56 @@
+services:
+  trino:
+    image: trinodb/trino:483@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_QUERY_USER:?MINIO_QUERY_USER là bắt buộc}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_QUERY_PASSWORD:?MINIO_QUERY_PASSWORD là bắt buộc}
+      ICEBERG_DB_PASSWORD: ${ICEBERG_DB_PASSWORD:?ICEBERG_DB_PASSWORD là bắt buộc}
+    ports:
+      - "127.0.0.1:${TRINO_PORT:-8082}:8080"
+    volumes:
+      - ./infrastructure/trino/config.properties:/etc/trino/config.properties:ro
+      - ./infrastructure/trino/jvm.config:/etc/trino/jvm.config:ro
+      - ./infrastructure/trino/node.properties:/etc/trino/node.properties:ro
+      - ./infrastructure/trino/catalog:/etc/trino/catalog:ro
+      - ./sql:/opt/lakehouse/sql:ro
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - trino --server http://127.0.0.1:8080 --execute 'SELECT 1' >/dev/null 2>&1
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  semantic-view-publisher:
+    image: trinodb/trino:483@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534
+    profiles: ["semantic"]
+    entrypoint: ["/bin/bash", "/opt/lakehouse/trino/publish-views.sh"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_PROCESSING_USER:?MINIO_PROCESSING_USER là bắt buộc}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_PROCESSING_PASSWORD:?MINIO_PROCESSING_PASSWORD là bắt buộc}
+      ICEBERG_DB_PASSWORD: ${ICEBERG_DB_PASSWORD:?ICEBERG_DB_PASSWORD là bắt buộc}
+      TRINO_PUBLISH_TIMEOUT_SECONDS: ${TRINO_PUBLISH_TIMEOUT_SECONDS:-120}
+    volumes:
+      - ./infrastructure/trino/publisher-config.properties:/etc/trino/config.properties:ro
+      - ./infrastructure/trino/publisher-jvm.config:/etc/trino/jvm.config:ro
+      - ./infrastructure/trino/node.properties:/etc/trino/node.properties:ro
+      - ./infrastructure/trino/catalog:/etc/trino/catalog:ro
+      - ./infrastructure/trino/publish-views.sh:/opt/lakehouse/trino/publish-views.sh:ro
+      - ./sql:/opt/lakehouse/sql:ro
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - lakehouse-internal

@@ -1,0 +1,23 @@
+{
+  "database_name": "Olist Lakehouse qua Trino",
+  "sqlalchemy_uri": "trino://superset@trino:8080/lakehouse/gold",
+  "cache_timeout": null,
+  "expose_in_sqllab": true,
+  "allow_run_async": false,
+  "allow_ctas": false,
+  "allow_cvas": false,
+  "allow_dml": false,
+  "allow_csv_upload": false,
+  "impersonate_user": false,
+  "extra": {
+    "allows_virtual_table_explore": true,
+    "cancel_query_on_windows_unload": true,
+    "disable_data_preview": false,
+    "disable_drill_to_detail": false,
+    "allow_multi_catalog": true,
+    "cost_estimate_enabled": false
+  },
+  "uuid": "10000000-0000-4000-8000-000000000001",
+  "version": "1.0.0",
+  "configuration_method": "sqlalchemy_form"
+}

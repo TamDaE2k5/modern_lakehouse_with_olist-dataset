@@ -1,0 +1,21 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {"id": 1, "title": "Kết quả kiểm tra chất lượng", "type": "bargauge", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "sum by (layer, severity, status) (olist_quality_checks_count)", "legendFormat": "{{layer}} {{severity}} {{status}}"}], "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}},
+    {"id": 2, "title": "Kiểm tra chất lượng lỗi", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "sum(olist_quality_checks_count{status!=\"PASS\"})", "legendFormat": "Không đạt"}], "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}},
+    {"id": 3, "title": "Số lần bảo trì", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "sum by (action, status) (olist_maintenance_runs_count)", "legendFormat": "{{action}} {{status}}"}], "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}},
+    {"id": 4, "title": "Số file dữ liệu được ghi lại", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "sum by (action, status) (olist_maintenance_rewritten_data_files_count)", "legendFormat": "{{action}} {{status}}"}], "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}},
+    {"id": 5, "title": "Thời gian bảo trì", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_maintenance_duration_seconds", "legendFormat": "{{action}} {{status}}"}], "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}}
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["olist", "quality", "maintenance"],
+  "templating": {"list": []},
+  "time": {"from": "now-24h", "to": "now"},
+  "timezone": "browser",
+  "title": "Chất lượng dữ liệu và bảo trì Olist",
+  "uid": "olist-data-quality",
+  "version": 1
+}

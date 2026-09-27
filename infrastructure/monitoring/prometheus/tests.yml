@@ -1,0 +1,106 @@
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: exporter endpoint loss fires from Prometheus scrape health
+    interval: 1m
+    input_series:
+      - series: 'up{job="pipeline-metrics",instance="pipeline-metrics:9101"}'
+        values: "0 0 0 0"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: PipelineMetricsExporterDown
+        exp_alerts:
+          - exp_labels:
+              instance: pipeline-metrics:9101
+              job: pipeline-metrics
+              severity: critical
+            exp_annotations:
+              summary: Pipeline metrics cannot refresh from Trino
+              description: The latest audit polling attempt failed; cached business samples remain available.
+
+  - name: Trino poll failure fires while exporter endpoint remains reachable
+    interval: 1m
+    input_series:
+      - series: 'up{job="pipeline-metrics",instance="pipeline-metrics:9101"}'
+        values: "1 1 1 1"
+      - series: olist_pipeline_exporter_up
+        values: "0 0 0 0"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: PipelineMetricsExporterDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: Pipeline metrics cannot refresh from Trino
+              description: The latest audit polling attempt failed; cached business samples remain available.
+
+  - name: WARN-only quality outcome is warning and never critical
+    interval: 1m
+    input_series:
+      - series: 'olist_quality_checks_count{layer="silver",severity="WARN",status="WARN"}'
+        values: "1 1 1 1 1 1 1"
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: DataQualityChecksWarning
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: Warning-severity data quality checks need attention
+              description: One or more persisted WARN-severity quality results report WARN.
+      - eval_time: 6m
+        alertname: DataQualityChecksFailed
+        exp_alerts: []
+
+  - name: ERROR quality outcome fires the critical gate alert
+    interval: 1m
+    input_series:
+      - series: 'olist_quality_checks_count{layer="bronze",severity="ERROR",status="ERROR"}'
+        values: "1 1 1 1 1 1 1"
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: DataQualityChecksFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+            exp_annotations:
+              summary: Error-severity data quality checks failed
+              description: One or more persisted ERROR-severity quality results are non-PASS.
+
+  - name: required platform probe loss fires general service alert
+    interval: 1m
+    input_series:
+      - series: 'probe_success{job="trino-health",instance="http://trino:8080/v1/info"}'
+        values: "0 0 0 0"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: ServiceProbeDown
+        exp_alerts:
+          - exp_labels:
+              instance: http://trino:8080/v1/info
+              job: trino-health
+              severity: critical
+            exp_annotations:
+              summary: Required lakehouse service probe is failing
+              description: PostgreSQL, Trino, or Airflow did not pass its bounded network health probe.
+
+  - name: unavailable blackbox scrape fires general service alert
+    interval: 1m
+    input_series:
+      - series: 'up{job="airflow-health",instance="http://airflow-webserver:8080/health"}'
+        values: "0 0 0 0"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: ServiceProbeDown
+        exp_alerts:
+          - exp_labels:
+              instance: http://airflow-webserver:8080/health
+              job: airflow-health
+              severity: critical
+            exp_annotations:
+              summary: Required lakehouse service probe is failing
+              description: PostgreSQL, Trino, or Airflow did not pass its bounded network health probe.

@@ -1,0 +1,108 @@
+{
+  "table_name": "fact_reviews",
+  "main_dttm_col": "review_date",
+  "currency_code_column": null,
+  "description": "Bộ dữ liệu phân tích Olist đã tuyển chọn: fact_reviews.",
+  "default_endpoint": null,
+  "offset": 0,
+  "cache_timeout": null,
+  "schema": "gold",
+  "catalog": "lakehouse",
+  "sql": "SELECT review_id, order_id, review_date, review_answer_timestamp, customer_key, customer_unique_id, customer_state, review_score, has_title, has_message FROM lakehouse.gold.vw_review_summary",
+  "source_db_engine": null,
+  "params": null,
+  "template_params": null,
+  "filter_select_enabled": true,
+  "fetch_values_predicate": null,
+  "extra": null,
+  "uuid": "20000000-0000-4000-8000-000000000004",
+  "columns": [
+    {
+      "column_name": "review_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "review_date",
+      "type": "DATE",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "review_answer_timestamp",
+      "type": "TIMESTAMP",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_key",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_unique_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_state",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "review_score",
+      "type": "INTEGER",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "has_title",
+      "type": "BOOLEAN",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "has_message",
+      "type": "BOOLEAN",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    }
+  ],
+  "metrics": [
+    {
+      "metric_name": "average_review_score",
+      "verbose_name": "Điểm đánh giá trung bình",
+      "metric_type": null,
+      "expression": "AVG(review_score)",
+      "description": null,
+      "d3format": ".2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    }
+  ],
+  "version": "1.0.0",
+  "database_uuid": "10000000-0000-4000-8000-000000000001",
+  "normalize_columns": false,
+  "always_filter_main_dttm": false
+}

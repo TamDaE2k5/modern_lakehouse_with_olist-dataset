@@ -1,0 +1,176 @@
+{
+  "table_name": "mart_seller_performance",
+  "main_dttm_col": "month_start",
+  "currency_code_column": null,
+  "description": "Bộ dữ liệu phân tích Olist đã tuyển chọn: mart_seller_performance.",
+  "default_endpoint": null,
+  "offset": 0,
+  "cache_timeout": null,
+  "schema": "gold",
+  "catalog": "lakehouse",
+  "sql": "WITH distinct_seller_orders AS (SELECT DISTINCT CAST(DATE_TRUNC('month', i.order_date) AS DATE) AS month_start, i.seller_key, i.order_id FROM lakehouse.gold.fact_order_items i), delivery AS (SELECT so.month_start, so.seller_key, COUNT_IF(o.delivery_duration_days IS NOT NULL) AS delivered_order_count, SUM(CASE WHEN o.delivery_duration_days IS NOT NULL THEN CAST(o.delivery_duration_days AS DOUBLE) ELSE 0.0 END) AS delivery_days_sum, COUNT_IF(o.delivery_duration_days IS NOT NULL AND NOT COALESCE(o.is_late_delivery, FALSE)) AS on_time_delivery_count FROM distinct_seller_orders so LEFT JOIN lakehouse.gold.fact_orders o ON so.order_id = o.order_id GROUP BY so.month_start, so.seller_key) SELECT m.month_start, m.seller_key, m.seller_id, m.seller_state, m.item_revenue, m.freight_total, m.item_count, m.order_count, m.average_delivery_days, m.on_time_delivery_rate, m.review_count, m.average_review_score, COALESCE(d.delivered_order_count, 0) AS delivered_order_count, COALESCE(d.delivery_days_sum, 0.0) AS delivery_days_sum, COALESCE(d.on_time_delivery_count, 0) AS on_time_delivery_count FROM lakehouse.gold.mart_seller_performance m LEFT JOIN delivery d ON m.month_start = d.month_start AND m.seller_key = d.seller_key",
+  "source_db_engine": null,
+  "params": null,
+  "template_params": null,
+  "filter_select_enabled": true,
+  "fetch_values_predicate": null,
+  "extra": null,
+  "uuid": "20000000-0000-4000-8000-000000000006",
+  "columns": [
+    {
+      "column_name": "month_start",
+      "type": "DATE",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "seller_key",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "seller_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "seller_state",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_revenue",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "freight_total",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "average_delivery_days",
+      "type": "DECIMAL(10,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "on_time_delivery_rate",
+      "type": "DECIMAL(5,4)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "review_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "average_review_score",
+      "type": "DECIMAL(4,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "delivered_order_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "delivery_days_sum",
+      "type": "DOUBLE",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "on_time_delivery_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    }
+  ],
+  "metrics": [
+    {
+      "metric_name": "item_revenue",
+      "verbose_name": "Doanh thu mặt hàng",
+      "metric_type": null,
+      "expression": "SUM(item_revenue)",
+      "description": null,
+      "d3format": "$,.2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "average_review_score",
+      "verbose_name": "Điểm đánh giá trung bình",
+      "metric_type": null,
+      "expression": "SUM(average_review_score * review_count) / NULLIF(SUM(review_count), 0)",
+      "description": null,
+      "d3format": ".2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "average_delivery_days",
+      "verbose_name": "Số ngày giao hàng trung bình",
+      "metric_type": null,
+      "expression": "SUM(delivery_days_sum) / NULLIF(SUM(delivered_order_count), 0)",
+      "description": null,
+      "d3format": ".2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "on_time_delivery_share",
+      "verbose_name": "Tỷ lệ giao hàng đúng hạn",
+      "metric_type": null,
+      "expression": "SUM(on_time_delivery_count) / NULLIF(SUM(delivered_order_count), 0)",
+      "description": null,
+      "d3format": ".1%",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    }
+  ],
+  "version": "1.0.0",
+  "database_uuid": "10000000-0000-4000-8000-000000000001",
+  "normalize_columns": false,
+  "always_filter_main_dttm": false
+}

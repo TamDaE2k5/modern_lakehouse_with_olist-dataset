@@ -1,0 +1,65 @@
+services:
+  superset-init:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/superset/Dockerfile
+    image: olist-lakehouse-superset:6.1.0
+    command: ["/opt/lakehouse/init_superset.sh"]
+    environment:
+      SUPERSET_CONFIG_PATH: /opt/lakehouse/superset_config.py
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?SUPERSET_SECRET_KEY is required}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD:?SUPERSET_DB_PASSWORD is required}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?SUPERSET_ADMIN_PASSWORD is required}
+      SUPERSET_ADMIN_USERNAME: olist_admin
+      SUPERSET_ADMIN_EMAIL: bi-admin@olist.local
+    volumes:
+      - ./dashboards/superset:/opt/lakehouse/assets:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      trino:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - lakehouse-internal
+
+  superset:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/superset/Dockerfile
+    image: olist-lakehouse-superset:6.1.0
+    command:
+      - gunicorn
+      - --bind
+      - 0.0.0.0:8088
+      - --workers
+      - "2"
+      - --worker-class
+      - gthread
+      - --threads
+      - "4"
+      - --timeout
+      - "120"
+      - superset.app:create_app()
+    environment:
+      SUPERSET_CONFIG_PATH: /opt/lakehouse/superset_config.py
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?SUPERSET_SECRET_KEY is required}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD:?SUPERSET_DB_PASSWORD is required}
+    ports:
+      - "127.0.0.1:${SUPERSET_PORT:-8088}:8088"
+    depends_on:
+      superset-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8088/health', timeout=2).read(1)
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal

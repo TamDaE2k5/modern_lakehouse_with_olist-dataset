@@ -1,0 +1,175 @@
+services:
+  minio:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/minio/Dockerfile
+    image: olist-lakehouse-minio:RELEASE.2025-10-15T17-29-55Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+    ports:
+      - "127.0.0.1:${MINIO_API_PORT:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "busybox", "wget", "--spider", "-q", "-T", "2", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  minio-init:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/mc/Dockerfile
+    image: olist-lakehouse-mc:RELEASE.2025-08-13T08-35-41Z
+    entrypoint: ["/bin/sh", "/scripts/create-buckets.sh"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      MINIO_UPLOAD_USER: ${MINIO_UPLOAD_USER:?MINIO_UPLOAD_USER is required}
+      MINIO_UPLOAD_PASSWORD: ${MINIO_UPLOAD_PASSWORD:?MINIO_UPLOAD_PASSWORD is required}
+      MINIO_PROCESSING_USER: ${MINIO_PROCESSING_USER:?MINIO_PROCESSING_USER is required}
+      MINIO_PROCESSING_PASSWORD: ${MINIO_PROCESSING_PASSWORD:?MINIO_PROCESSING_PASSWORD is required}
+      MINIO_QUERY_USER: ${MINIO_QUERY_USER:?MINIO_QUERY_USER is required}
+      MINIO_QUERY_PASSWORD: ${MINIO_QUERY_PASSWORD:?MINIO_QUERY_PASSWORD is required}
+    volumes:
+      - ./infrastructure/minio/create-buckets.sh:/scripts/create-buckets.sh:ro
+      - ./infrastructure/minio/policies:/policies:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - lakehouse-internal
+
+  postgres:
+    image: postgres:16.10@sha256:21f6013073bc6b92830a2129570e2f5ec42a6c734b5a985a41e83aa58f54c3c1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?POSTGRES_ADMIN_PASSWORD is required}
+      POSTGRES_DB: postgres
+      ICEBERG_DB_PASSWORD: ${ICEBERG_DB_PASSWORD:?ICEBERG_DB_PASSWORD is required}
+      AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD:?AIRFLOW_DB_PASSWORD is required}
+      SUPERSET_DB_PASSWORD: ${SUPERSET_DB_PASSWORD:?SUPERSET_DB_PASSWORD is required}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init/001-databases.sql:/docker-entrypoint-initdb.d/001-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  spark-master:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/spark/Dockerfile
+    image: olist-lakehouse-spark:3.5.9-iceberg-1.11.0
+    ports:
+      - "127.0.0.1:8084:8080"
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.master.Master
+      - --host
+      - spark-master
+      - --port
+      - "7077"
+      - --webui-port
+      - "8080"
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_PROCESSING_USER:?MINIO_PROCESSING_USER is required}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_PROCESSING_PASSWORD:?MINIO_PROCESSING_PASSWORD is required}
+      AWS_REGION: ${S3_REGION:-us-east-1}
+      ICEBERG_DB_PASSWORD: ${ICEBERG_DB_PASSWORD:?ICEBERG_DB_PASSWORD is required}
+      PYSPARK_PYTHON: /usr/local/bin/python3.11
+    expose:
+      - "7077"
+      - "8080"
+    volumes:
+      - spark-events:/opt/spark-events
+      - ./transformation:/opt/lakehouse/transformation:ro
+      - ./data_quality:/opt/lakehouse/data_quality:ro
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python3.11
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080', timeout=2).read(1)
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  spark-worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/spark/Dockerfile
+    image: olist-lakehouse-spark:3.5.9-iceberg-1.11.0
+    ports:
+      - "127.0.0.1:8085:8081"
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.worker.Worker
+      - --cores
+      - "2"
+      - --memory
+      - 4g
+      - --webui-port
+      - "8081"
+      - spark://spark-master:7077
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_PROCESSING_USER:?MINIO_PROCESSING_USER is required}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_PROCESSING_PASSWORD:?MINIO_PROCESSING_PASSWORD is required}
+      AWS_REGION: ${S3_REGION:-us-east-1}
+      ICEBERG_DB_PASSWORD: ${ICEBERG_DB_PASSWORD:?ICEBERG_DB_PASSWORD is required}
+      PYSPARK_PYTHON: /usr/local/bin/python3.11
+      SPARK_WORKER_CORES: "2"
+      SPARK_WORKER_MEMORY: 4g
+    expose:
+      - "8081"
+    volumes:
+      - spark-events:/opt/spark-events
+      - ./transformation:/opt/lakehouse/transformation:ro
+      - ./data_quality:/opt/lakehouse/data_quality:ro
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python3.11
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081', timeout=2).read(1)
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+volumes:
+  minio-data:
+  postgres-data:
+  spark-events:
+
+networks:
+  lakehouse-internal:

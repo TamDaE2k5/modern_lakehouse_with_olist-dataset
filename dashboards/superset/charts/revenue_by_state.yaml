@@ -1,0 +1,38 @@
+{
+  "slice_name": "Doanh thu theo bang của khách hàng",
+  "description": "Doanh thu Olist theo bang của khách hàng.",
+  "certified_by": null,
+  "certification_details": null,
+  "viz_type": "echarts_timeseries_bar",
+  "params": {
+    "viz_type": "echarts_timeseries_bar",
+    "datasource": "0__table",
+    "slice_id": null,
+    "metrics": [
+      "item_revenue"
+    ],
+    "groupby": [
+      "customer_state"
+    ],
+    "granularity_sqla": null,
+    "time_grain_sqla": null,
+    "time_range": "No filter",
+    "row_limit": 1000,
+    "order_desc": true,
+    "adhoc_filters": [],
+    "color_scheme": "supersetColors",
+    "show_legend": true,
+    "rich_tooltip": true,
+    "truncate_metric": true,
+    "y_axis_format": "SMART_NUMBER",
+    "x_axis_time_format": "smart_date",
+    "comparison_type": "values",
+    "show_timestamp": true,
+    "show_trend_line": false
+  },
+  "query_context": "{\"datasource\":{\"id\":null,\"type\":\"table\"},\"force\":false,\"queries\":[{\"filters\":[],\"extras\":{\"time_grain_sqla\":null,\"having\":\"\",\"where\":\"\"},\"applied_time_extras\":{},\"columns\":[\"customer_state\"],\"metrics\":[\"item_revenue\"],\"orderby\":[],\"annotation_layers\":[],\"row_limit\":1000,\"series_limit\":0,\"order_desc\":true,\"url_params\":{},\"custom_params\":{},\"custom_form_data\":{},\"time_range\":\"No filter\"}],\"form_data\":{\"viz_type\":\"echarts_timeseries_bar\",\"datasource\":\"0__table\",\"slice_id\":null,\"metrics\":[\"item_revenue\"],\"groupby\":[\"customer_state\"],\"granularity_sqla\":null,\"time_grain_sqla\":null,\"time_range\":\"No filter\",\"row_limit\":1000,\"order_desc\":true},\"result_format\":\"json\",\"result_type\":\"full\"}",
+  "cache_timeout": null,
+  "uuid": "30000000-0000-4000-8000-000000000003",
+  "version": "1.0.0",
+  "dataset_uuid": "20000000-0000-4000-8000-000000000005"
+}

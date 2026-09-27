@@ -1,0 +1,131 @@
+services:
+  minio:
+    environment:
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+
+  spark-master:
+    environment:
+      SPARK_MASTER_OPTS: >-
+        -Dspark.ui.prometheus.enabled=true
+        -Dspark.metrics.conf.*.sink.prometheusServlet.class=org.apache.spark.metrics.sink.PrometheusServlet
+        -Dspark.metrics.conf.*.sink.prometheusServlet.path=/metrics/prometheus
+
+  spark-worker:
+    environment:
+      SPARK_WORKER_OPTS: >-
+        -Dspark.ui.prometheus.enabled=true
+        -Dspark.metrics.conf.*.sink.prometheusServlet.class=org.apache.spark.metrics.sink.PrometheusServlet
+        -Dspark.metrics.conf.*.sink.prometheusServlet.path=/metrics/prometheus
+
+  pipeline-metrics:
+    image: python:3.11.13-slim-bookworm@sha256:86adf8dbadc3d6e82ee5dd2c74bec2e1c2467cdad47886280501df722372d2e1
+    user: "65532:65532"
+    command: ["python", "/opt/lakehouse/monitoring/pipeline_metrics.py"]
+    environment:
+      PORT: "9101"
+      POLL_INTERVAL_SECONDS: ${PIPELINE_METRICS_POLL_INTERVAL_SECONDS:-30}
+      TRINO_TIMEOUT_SECONDS: ${PIPELINE_METRICS_TRINO_TIMEOUT_SECONDS:-10}
+      TRINO_URL: http://trino:8080
+      TRINO_CONTROL_SCHEMA: ${PIPELINE_METRICS_CONTROL_SCHEMA:-control}
+      TRINO_QUALITY_SCHEMA: ${PIPELINE_METRICS_QUALITY_SCHEMA:-quality}
+      PYTHONDONTWRITEBYTECODE: "1"
+    expose:
+      - "9101"
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./monitoring/exporters/pipeline_metrics.py:/opt/lakehouse/monitoring/pipeline_metrics.py:ro
+    depends_on:
+      trino:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:9101/healthz', timeout=2).read()
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.27.0@sha256:a50c4c0eda297baa1678cd4dc4712a67fdea713b832d43ce7fcc5f9bea05094d
+    command: ["--config.file=/etc/blackbox_exporter/config.yml"]
+    expose:
+      - "9115"
+    volumes:
+      - ./infrastructure/monitoring/blackbox/config.yml:/etc/blackbox_exporter/config.yml:ro
+    healthcheck:
+      test: ["CMD", "/bin/blackbox_exporter", "--version"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  prometheus:
+    image: prom/prometheus:v3.13.1@sha256:3c42b892cf723fa54d2f262c37a0e1f80aa8c8ddb1da7b9b0df9455a35a7f893
+    user: "65534:65534"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    depends_on:
+      pipeline-metrics:
+        condition: service_started
+      blackbox-exporter:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/bin/promtool", "check", "ready", "--url=http://127.0.0.1:9090"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+  grafana:
+    image: grafana/grafana:12.4.0@sha256:b0ae311af06228bcfd4a620504b653db80f5b91e94dc3dc2a5b7dab202bcde20
+    user: "472:0"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infrastructure/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
+volumes:
+  prometheus-data:
+  grafana-data:

@@ -1,0 +1,220 @@
+{
+  "table_name": "fact_orders",
+  "main_dttm_col": "purchase_timestamp",
+  "currency_code_column": null,
+  "description": "Bộ dữ liệu phân tích Olist đã tuyển chọn: fact_orders.",
+  "default_endpoint": null,
+  "offset": 0,
+  "cache_timeout": null,
+  "schema": "gold",
+  "catalog": "lakehouse",
+  "sql": "SELECT order_id, purchase_timestamp, purchase_date, order_status, customer_key, customer_unique_id, customer_city, customer_state, repeat_customer, total_items, item_revenue, freight_total, payment_total, delivery_duration_days, carrier_delivery_duration_days, is_late_delivery, average_review_score FROM lakehouse.gold.vw_order_summary",
+  "source_db_engine": null,
+  "params": null,
+  "template_params": null,
+  "filter_select_enabled": true,
+  "fetch_values_predicate": null,
+  "extra": null,
+  "uuid": "20000000-0000-4000-8000-000000000001",
+  "columns": [
+    {
+      "column_name": "order_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "purchase_timestamp",
+      "type": "TIMESTAMP",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "purchase_date",
+      "type": "DATE",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_status",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_key",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_unique_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_city",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_state",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "repeat_customer",
+      "type": "BOOLEAN",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "total_items",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_revenue",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "freight_total",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "payment_total",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "delivery_duration_days",
+      "type": "INTEGER",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "carrier_delivery_duration_days",
+      "type": "INTEGER",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "is_late_delivery",
+      "type": "BOOLEAN",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "average_review_score",
+      "type": "DECIMAL(4,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "spending_band",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true,
+      "expression": "CASE WHEN payment_total < 50 THEN '00-49.99' WHEN payment_total < 100 THEN '50-99.99' WHEN payment_total < 200 THEN '100-199.99' WHEN payment_total < 500 THEN '200-499.99' WHEN payment_total < 1000 THEN '500-999.99' ELSE '1000+' END"
+    }
+  ],
+  "metrics": [
+    {
+      "metric_name": "order_count",
+      "verbose_name": "Số đơn hàng",
+      "metric_type": null,
+      "expression": "COUNT(DISTINCT order_id)",
+      "description": null,
+      "d3format": ",d",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "average_order_value",
+      "verbose_name": "Giá trị đơn hàng trung bình",
+      "metric_type": null,
+      "expression": "SUM(item_revenue) / NULLIF(COUNT(DISTINCT order_id), 0)",
+      "description": null,
+      "d3format": "$,.2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "average_delivery_days",
+      "verbose_name": "Số ngày giao hàng trung bình",
+      "metric_type": null,
+      "expression": "AVG(delivery_duration_days)",
+      "description": null,
+      "d3format": ".2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "on_time_delivery_share",
+      "verbose_name": "Tỷ lệ giao hàng đúng hạn",
+      "metric_type": null,
+      "expression": "AVG(CASE WHEN delivery_duration_days IS NOT NULL THEN CASE WHEN COALESCE(is_late_delivery, FALSE) = FALSE THEN 1.0 ELSE 0.0 END END)",
+      "description": null,
+      "d3format": ".1%",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "repeat_customer_share",
+      "verbose_name": "Tỷ lệ khách hàng quay lại",
+      "metric_type": null,
+      "expression": "COUNT(DISTINCT CASE WHEN repeat_customer THEN customer_unique_id END) / NULLIF(COUNT(DISTINCT customer_unique_id), 0)",
+      "description": null,
+      "d3format": ".1%",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "customer_count",
+      "verbose_name": "Số khách hàng",
+      "metric_type": null,
+      "expression": "COUNT(DISTINCT customer_unique_id)",
+      "description": null,
+      "d3format": ",d",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    }
+  ],
+  "version": "1.0.0",
+  "database_uuid": "10000000-0000-4000-8000-000000000001",
+  "normalize_columns": false,
+  "always_filter_main_dttm": false
+}

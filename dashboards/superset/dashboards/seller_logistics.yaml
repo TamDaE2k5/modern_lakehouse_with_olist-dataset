@@ -1,0 +1,280 @@
+{
+  "dashboard_title": "Phân tích người bán và logistics",
+  "description": "Bảng điều khiển phân tích người bán và logistics Olist đã tuyển chọn.",
+  "css": "",
+  "slug": "seller-logistics",
+  "uuid": "40000000-0000-4000-8000-000000000004",
+  "position": {
+    "DASHBOARD_VERSION_KEY": "v2",
+    "ROOT_ID": {
+      "id": "ROOT_ID",
+      "type": "ROOT",
+      "children": [
+        "GRID_ID"
+      ]
+    },
+    "GRID_ID": {
+      "id": "GRID_ID",
+      "type": "GRID",
+      "parents": [
+        "ROOT_ID"
+      ],
+      "children": [
+        "ROW-1",
+        "ROW-2",
+        "ROW-3",
+        "ROW-4"
+      ]
+    },
+    "HEADER_ID": {
+      "id": "HEADER_ID",
+      "type": "HEADER",
+      "meta": {
+        "text": "Phân tích người bán và logistics"
+      },
+      "parents": [
+        "ROOT_ID"
+      ]
+    },
+    "ROW-1": {
+      "id": "ROW-1",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000008"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000008": {
+      "id": "CHART-30000000-0000-4000-8000-000000000008",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 1,
+        "height": 50,
+        "sliceName": "Người bán dẫn đầu theo doanh thu",
+        "uuid": "30000000-0000-4000-8000-000000000008",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-1"
+      ]
+    },
+    "ROW-2": {
+      "id": "ROW-2",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000009"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000009": {
+      "id": "CHART-30000000-0000-4000-8000-000000000009",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 2,
+        "height": 50,
+        "sliceName": "Điểm đánh giá người bán",
+        "uuid": "30000000-0000-4000-8000-000000000009",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-2"
+      ]
+    },
+    "ROW-3": {
+      "id": "ROW-3",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000010"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000010": {
+      "id": "CHART-30000000-0000-4000-8000-000000000010",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 3,
+        "height": 50,
+        "sliceName": "Xu hướng số ngày giao hàng",
+        "uuid": "30000000-0000-4000-8000-000000000010",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-3"
+      ]
+    },
+    "ROW-4": {
+      "id": "ROW-4",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000011"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000011": {
+      "id": "CHART-30000000-0000-4000-8000-000000000011",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 4,
+        "height": 50,
+        "sliceName": "Tỷ lệ giao hàng đúng hạn",
+        "uuid": "30000000-0000-4000-8000-000000000011",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-4"
+      ]
+    }
+  },
+  "metadata": {
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "refresh_frequency": 0,
+    "color_scheme": "supersetColors",
+    "label_colors": {},
+    "shared_label_colors": [],
+    "map_label_colors": {},
+    "color_scheme_domain": [],
+    "cross_filters_enabled": true,
+    "default_filters": "{}",
+    "chart_configuration": {},
+    "native_filter_configuration": [
+      {
+        "id": "NATIVE_FILTER-SELLER-DATE",
+        "controlValues": {
+          "enableEmptyFilter": false
+        },
+        "name": "Ngày",
+        "filterType": "filter_time",
+        "targets": [
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000006",
+            "column": {
+              "name": "month_start"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {
+            "time_range": "No filter"
+          },
+          "filterState": {
+            "value": "No filter"
+          }
+        },
+        "cascadeParentIds": [],
+        "scope": {
+          "rootPath": [
+            "ROOT_ID"
+          ],
+          "excluded": []
+        },
+        "type": "NATIVE_FILTER",
+        "description": ""
+      },
+      {
+        "id": "NATIVE_FILTER-SELLER-STATE",
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "defaultToFirstItem": false,
+          "multiSelect": true,
+          "searchAllOptions": false,
+          "inverseSelection": false
+        },
+        "name": "Bang người bán",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000006",
+            "column": {
+              "name": "seller_state"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {
+          "rootPath": [
+            "ROOT_ID"
+          ],
+          "excluded": []
+        },
+        "type": "NATIVE_FILTER",
+        "description": ""
+      },
+      {
+        "id": "NATIVE_FILTER-SELLER-ID",
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "defaultToFirstItem": false,
+          "multiSelect": true,
+          "searchAllOptions": false,
+          "inverseSelection": false
+        },
+        "name": "Người bán",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000006",
+            "column": {
+              "name": "seller_id"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {
+          "rootPath": [
+            "ROOT_ID"
+          ],
+          "excluded": []
+        },
+        "type": "NATIVE_FILTER",
+        "description": ""
+      }
+    ]
+  },
+  "version": "1.0.0",
+  "published": true
+}

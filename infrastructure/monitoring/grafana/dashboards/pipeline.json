@@ -1,0 +1,23 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {"id": 1, "title": "Trạng thái pipeline gần nhất", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_run_status", "legendFormat": "{{job_name}} {{layer}} {{status}}"}], "gridPos": {"h": 7, "w": 8, "x": 0, "y": 0}},
+    {"id": 2, "title": "Thời gian chạy pipeline", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_duration_seconds", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 8, "y": 0}},
+    {"id": 3, "title": "Số dòng đầu vào", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_input_rows", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 16, "y": 0}},
+    {"id": 4, "title": "Số dòng đầu ra", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_output_rows", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 0, "y": 7}},
+    {"id": 5, "title": "Số dòng bị loại", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_rejected_rows", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 8, "y": 7}},
+    {"id": 6, "title": "Tỷ lệ dòng bị loại", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_rejected_ratio", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 16, "y": 7}},
+    {"id": 7, "title": "Lần chạy pipeline thành công gần nhất", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "time() - olist_pipeline_last_success_timestamp_seconds", "legendFormat": "{{job_name}} {{layer}} độ trễ"}], "gridPos": {"h": 7, "w": 24, "x": 0, "y": 14}}
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["olist", "pipeline"],
+  "templating": {"list": []},
+  "time": {"from": "now-24h", "to": "now"},
+  "timezone": "browser",
+  "title": "Vận hành pipeline Olist",
+  "uid": "olist-pipeline",
+  "version": 1
+}

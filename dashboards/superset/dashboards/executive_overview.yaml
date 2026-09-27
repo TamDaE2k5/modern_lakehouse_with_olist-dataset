@@ -1,0 +1,185 @@
+{
+  "dashboard_title": "Tổng quan điều hành",
+  "description": "Bảng điều khiển tổng quan điều hành Olist đã tuyển chọn.",
+  "css": "",
+  "slug": "executive-overview",
+  "uuid": "40000000-0000-4000-8000-000000000001",
+  "position": {
+    "DASHBOARD_VERSION_KEY": "v2",
+    "ROOT_ID": {
+      "id": "ROOT_ID",
+      "type": "ROOT",
+      "children": [
+        "GRID_ID"
+      ]
+    },
+    "GRID_ID": {
+      "id": "GRID_ID",
+      "type": "GRID",
+      "parents": [
+        "ROOT_ID"
+      ],
+      "children": [
+        "ROW-1",
+        "ROW-2"
+      ]
+    },
+    "HEADER_ID": {
+      "id": "HEADER_ID",
+      "type": "HEADER",
+      "meta": {
+        "text": "Tổng quan điều hành"
+      },
+      "parents": [
+        "ROOT_ID"
+      ]
+    },
+    "ROW-1": {
+      "id": "ROW-1",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000001"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000001": {
+      "id": "CHART-30000000-0000-4000-8000-000000000001",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 1,
+        "height": 50,
+        "sliceName": "KPI điều hành",
+        "uuid": "30000000-0000-4000-8000-000000000001",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-1"
+      ]
+    },
+    "ROW-2": {
+      "id": "ROW-2",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000002"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000002": {
+      "id": "CHART-30000000-0000-4000-8000-000000000002",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 2,
+        "height": 50,
+        "sliceName": "Xu hướng doanh thu",
+        "uuid": "30000000-0000-4000-8000-000000000002",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-2"
+      ]
+    }
+  },
+  "metadata": {
+    "timed_refresh_immune_slices": [],
+    "expanded_slices": {},
+    "refresh_frequency": 0,
+    "color_scheme": "supersetColors",
+    "label_colors": {},
+    "shared_label_colors": [],
+    "map_label_colors": {},
+    "color_scheme_domain": [],
+    "cross_filters_enabled": true,
+    "default_filters": "{}",
+    "chart_configuration": {},
+    "native_filter_configuration": [
+      {
+        "id": "NATIVE_FILTER-EXEC-DATE",
+        "controlValues": {
+          "enableEmptyFilter": false
+        },
+        "name": "Ngày",
+        "filterType": "filter_time",
+        "targets": [
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000001",
+            "column": {
+              "name": "purchase_timestamp"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {
+            "time_range": "No filter"
+          },
+          "filterState": {
+            "value": "No filter"
+          }
+        },
+        "cascadeParentIds": [],
+        "scope": {
+          "rootPath": [
+            "ROOT_ID"
+          ],
+          "excluded": []
+        },
+        "type": "NATIVE_FILTER",
+        "description": ""
+      },
+      {
+        "id": "NATIVE_FILTER-EXEC-STATUS",
+        "controlValues": {
+          "enableEmptyFilter": true,
+          "defaultToFirstItem": false,
+          "multiSelect": true,
+          "searchAllOptions": false,
+          "inverseSelection": false
+        },
+        "name": "Trạng thái đơn hàng",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000001",
+            "column": {
+              "name": "order_status"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {
+          "rootPath": [
+            "ROOT_ID"
+          ],
+          "excluded": [
+            2
+          ]
+        },
+        "type": "NATIVE_FILTER",
+        "description": ""
+      }
+    ]
+  },
+  "version": "1.0.0",
+  "published": true
+}

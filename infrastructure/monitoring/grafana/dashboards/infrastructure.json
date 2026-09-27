@@ -1,0 +1,22 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "panels": [
+    {"id": 1, "title": "Sức khỏe target Prometheus", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "up", "legendFormat": "{{job}} {{instance}}"}], "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}},
+    {"id": 2, "title": "Sức khỏe exporter pipeline", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "min(up{job=\"pipeline-metrics\"})", "legendFormat": "Endpoint exporter"}], "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}},
+    {"id": 3, "title": "Lần thu thập metric thành công gần nhất", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "time() - olist_pipeline_exporter_last_success_timestamp_seconds", "legendFormat": "Độ trễ (giây)"}], "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}},
+    {"id": 4, "title": "Thời gian scrape Prometheus", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "scrape_duration_seconds", "legendFormat": "{{job}}"}], "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}},
+    {"id": 5, "title": "Sức khỏe probe PostgreSQL, Trino và Airflow", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "probe_success{job=~\"postgres-health|trino-health|airflow-health\"}", "legendFormat": "{{job}} {{instance}}"}], "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}},
+    {"id": 6, "title": "Thời gian probe nền tảng", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "probe_duration_seconds{job=~\"postgres-health|trino-health|airflow-health\"}", "legendFormat": "{{job}} {{instance}}"}], "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}}
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["olist", "infrastructure"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "timezone": "browser",
+  "title": "Tổng quan hạ tầng Olist",
+  "uid": "olist-infrastructure",
+  "version": 1
+}

@@ -1,0 +1,72 @@
+groups:
+  - name: exporter-health
+    rules:
+      - alert: ServiceProbeDown
+        expr: (probe_success{job=~"postgres-health|trino-health|airflow-health"} == 0) or (up{job=~"postgres-health|trino-health|airflow-health"} == 0)
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Required lakehouse service probe is failing
+          description: PostgreSQL, Trino, or Airflow did not pass its bounded network health probe.
+
+      - alert: PipelineMetricsExporterDown
+        expr: (up{job="pipeline-metrics"} == 0) or on () (olist_pipeline_exporter_up == 0)
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Pipeline metrics cannot refresh from Trino
+          description: The latest audit polling attempt failed; cached business samples remain available.
+
+  - name: pipeline-failures
+    rules:
+      - alert: PipelineRunFailed
+        expr: olist_pipeline_run_status{status=~"FAILED|UNKNOWN"} == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Latest pipeline run did not complete successfully
+          description: A bounded job and layer pair reports a failed or unknown latest run.
+
+  - name: pipeline-rejections
+    rules:
+      - alert: PipelineRejectedRatioHigh
+        expr: olist_pipeline_rejected_ratio > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Pipeline rejected-row ratio is above five percent
+          description: The latest pipeline run rejected more than five percent of its input rows.
+
+  - name: data-quality
+    rules:
+      - alert: DataQualityChecksFailed
+        expr: sum(olist_quality_checks_count{severity="ERROR",status!="PASS"}) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: Error-severity data quality checks failed
+          description: One or more persisted ERROR-severity quality results are non-PASS.
+      - alert: DataQualityChecksWarning
+        expr: sum(olist_quality_checks_count{severity="WARN",status="WARN"}) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Warning-severity data quality checks need attention
+          description: One or more persisted WARN-severity quality results report WARN.
+
+  - name: data-freshness
+    rules:
+      - alert: PipelineDataStale
+        expr: time() - olist_pipeline_last_success_timestamp_seconds > 86400
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: A pipeline has no successful completion in the last day
+          description: The latest successful completion timestamp for a bounded job and layer pair is over 24 hours old.

@@ -1,0 +1,112 @@
+{
+  "table_name": "mart_daily_revenue",
+  "main_dttm_col": "revenue_date",
+  "currency_code_column": null,
+  "description": "Bộ dữ liệu phân tích Olist đã tuyển chọn: mart_daily_revenue.",
+  "default_endpoint": null,
+  "offset": 0,
+  "cache_timeout": null,
+  "schema": "gold",
+  "catalog": "lakehouse",
+  "sql": "SELECT revenue_date, CAST(revenue_date AS TIMESTAMP) AS purchase_timestamp, customer_state, product_category, item_revenue, freight_total, item_count, order_count, customer_count FROM lakehouse.gold.mart_daily_revenue",
+  "source_db_engine": null,
+  "params": null,
+  "template_params": null,
+  "filter_select_enabled": true,
+  "fetch_values_predicate": null,
+  "extra": null,
+  "uuid": "20000000-0000-4000-8000-000000000005",
+  "columns": [
+    {
+      "column_name": "revenue_date",
+      "type": "DATE",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "purchase_timestamp",
+      "type": "TIMESTAMP",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_state",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "product_category",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_revenue",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "freight_total",
+      "type": "DECIMAL(18,2)",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "item_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_count",
+      "type": "BIGINT",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    }
+  ],
+  "metrics": [
+    {
+      "metric_name": "item_revenue",
+      "verbose_name": "Doanh thu mặt hàng",
+      "metric_type": null,
+      "expression": "SUM(item_revenue)",
+      "description": null,
+      "d3format": "$,.2f",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    },
+    {
+      "metric_name": "order_count",
+      "verbose_name": "Số đơn hàng",
+      "metric_type": null,
+      "expression": "SUM(order_count)",
+      "description": null,
+      "d3format": ",d",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    }
+  ],
+  "version": "1.0.0",
+  "database_uuid": "10000000-0000-4000-8000-000000000001",
+  "normalize_columns": false,
+  "always_filter_main_dttm": false
+}
