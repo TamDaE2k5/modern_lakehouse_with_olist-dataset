@@ -2,7 +2,7 @@
 olist-lakehouse-images.tar
 /data
 NHAT_KY*.*
-*/test_smoke_bronze.py
+*/test_smoke_*.*
 
 
 # Byte-compiled / optimized / DLL files
