@@ -14,7 +14,7 @@ BRONZE_METADATA_COLUMNS = (
     ColumnSpec("_ingestion_date", "date", False),
     ColumnSpec("_batch_id", "string", False),
     ColumnSpec("_source_file", "string", False),
-    ColumnSpec("_row_hash", "string", False),
+    # ColumnSpec("_row_hash", "string", False),  # Legacy per-row hash commented out
 )
 
 REQUIRED_QUALITY_RULES = (
