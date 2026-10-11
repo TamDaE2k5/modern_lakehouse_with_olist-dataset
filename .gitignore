@@ -1,5 +1,8 @@
 ./secrets/maintenance_approval_secret
 olist-lakehouse-images.tar
+/data
+NHAT_KY*.*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
