@@ -1,4 +1,10 @@
-"""Environment-backed settings shared by lakehouse jobs."""
+"""Quản lý các thông số cấu hình môi trường (Settings) cho toàn bộ hệ thống Lakehouse.
+
+Nguyên tắc an toàn (Security by Design):
+- Các trường mật khẩu (minio_root_password, iceberg_db_password...) được ẩn khỏi hàm repr() (field(repr=False))
+  để tránh lộ lọt mật khẩu ra console log khi in đối tượng Settings.
+- Tự động fallback lấy giá trị từ các biến môi trường chuẩn.
+"""
 
 from __future__ import annotations
 
@@ -9,15 +15,22 @@ import os
 
 @dataclass(frozen=True)
 class Settings:
-    """Immutable runtime configuration with secrets excluded from its representation."""
+    """Cấu hình bất biến (Immutable) chứa thông tin kết nối MinIO, PostgreSQL, Spark và Iceberg."""
 
+    # 1. Các thông tin bảo mật (ẩn khỏi log)
     minio_root_user: str = field(repr=False)
     minio_root_password: str = field(repr=False)
     iceberg_db_password: str = field(repr=False)
+
+    # 2. Cấu hình Object Storage (MinIO S3)
     s3_endpoint: str = "http://minio:9000"
     s3_region: str = "us-east-1"
     iceberg_warehouse: str = "s3://lakehouse/"
+
+    # 3. Cấu hình Spark Cluster
     spark_master_url: str = "spark://spark-master:7077"
+
+    # 4. Cấu hình PostgreSQL Catalog cho Apache Iceberg
     postgres_host: str = "postgres"
     postgres_port: int = 5432
     iceberg_database: str = "iceberg"
@@ -25,8 +38,7 @@ class Settings:
 
     @property
     def iceberg_jdbc_uri(self) -> str:
-        """Return the JDBC URI used by the shared Iceberg catalog."""
-
+        """Tạo chuỗi kết nối JDBC tới database PostgreSQL của Iceberg Catalog."""
         return (
             f"jdbc:postgresql://{self.postgres_host}:"
             f"{self.postgres_port}/{self.iceberg_database}"
@@ -34,8 +46,7 @@ class Settings:
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> Settings:
-        """Build settings from environment variables."""
-
+        """Đọc và kiểm tra các biến môi trường bắt buộc trước khi khởi chạy job."""
         values = os.environ if env is None else env
         required_secrets = (
             "MINIO_ROOT_USER",
@@ -44,7 +55,7 @@ class Settings:
         )
         missing = [name for name in required_secrets if not values.get(name)]
         if missing:
-            raise ValueError(f"Missing required settings: {', '.join(missing)}")
+            raise ValueError(f"Thiếu các biến môi trường bắt buộc: {', '.join(missing)}")
 
         return cls(
             minio_root_user=values["MINIO_ROOT_USER"],

@@ -1,4 +1,15 @@
-"""Silver order-item typing, validation, and order timestamp enrichment."""
+"""Chuẩn hóa chi tiết món hàng trong đơn (Order Items) và làm giàu thời gian mua hàng ở Tầng Silver.
+
+Nghiệp vụ:
+1. Ép kiểu dữ liệu tài chính: price và freight_value sang decimal(18,2), thứ tự món hàng order_item_id sang int.
+2. Broadcast Join với orders:
+   - Làm giàu trường `order_purchase_timestamp` trực tiếp vào từng món hàng.
+   - Ý nghĩa: Giúp bảng Fact bán hàng sau này có thể phân tích theo ngày/tháng mà không cần JOIN ngược lại orders.
+3. Kiểm tra toàn vẹn tham chiếu (Referential Integrity):
+   - Nếu mã order_id không tồn tại trong bảng orders -> lỗi MISSING_ORDER_REFERENCE -> đưa vào Quarantine.
+4. Kiểm tra giá bán, cước phí không được âm (< 0).
+5. Khử trùng lặp theo cặp khóa phức hợp (order_id, order_item_id).
+"""
 
 from __future__ import annotations
 
@@ -10,11 +21,12 @@ from transformation.common.validation import TransformResult, ValidationRule
 from transformation.silver._common import blank, deterministic_result
 from transformation.silver.orders import TIMESTAMP_FORMAT
 
+# Định dạng tiền tệ chuẩn: 18 chữ số, 2 số thập phân
 MONEY_TYPE = "decimal(18,2)"
 
 
 def _order_purchase_lookup(orders: DataFrame) -> DataFrame:
-    """Return latest distinct purchase timestamp per order_id for broadcast enrichment."""
+    """Tạo bảng tra cứu thời điểm đặt mua (order_purchase_timestamp) theo từng order_id."""
     ordering = Window.partitionBy(F.trim("order_id")).orderBy(
         F.col("_ingestion_timestamp").desc_nulls_last(),
         F.col("_batch_id").desc_nulls_last(),
@@ -33,7 +45,8 @@ def _order_purchase_lookup(orders: DataFrame) -> DataFrame:
 
 
 def transform_order_items(items: DataFrame, orders: DataFrame) -> TransformResult:
-    """Return typed unique order line items enriched with their order purchase timestamp."""
+    """Biến đổi bảng Bronze order_items thành dữ liệu Silver sạch và Vùng cách ly Quarantine."""
+    # Bước 1: Chuẩn hóa dữ liệu, ép kiểu tiền tệ và Broadcast Join lấy order_purchase_timestamp
     normalized = (
         items.withColumn("order_id", F.trim("order_id"))
         .withColumn("order_item_id", F.trim("order_item_id").cast("int"))
@@ -45,6 +58,7 @@ def transform_order_items(items: DataFrame, orders: DataFrame) -> TransformResul
         )
         .withColumn("price", F.trim("price").cast(MONEY_TYPE))
         .withColumn("freight_value", F.trim("freight_value").cast(MONEY_TYPE))
+        # Nối với bảng orders để lấy ngày mua hàng
         .join(
             F.broadcast(_order_purchase_lookup(orders)),
             F.col("order_id") == F.col("_lookup_order_id"),
@@ -53,6 +67,7 @@ def transform_order_items(items: DataFrame, orders: DataFrame) -> TransformResul
         .drop("_lookup_order_id")
     )
 
+    # Bước 2: Bộ luật kiểm định chất lượng
     rules = (
         ValidationRule("MISSING_ORDER_ITEM_ORDER_ID", blank("order_id")),
         ValidationRule(
@@ -66,9 +81,11 @@ def transform_order_items(items: DataFrame, orders: DataFrame) -> TransformResul
         ValidationRule("NEGATIVE_PRICE", F.col("price") < 0),
         ValidationRule("INVALID_FREIGHT_VALUE", F.col("freight_value").isNull()),
         ValidationRule("NEGATIVE_FREIGHT_VALUE", F.col("freight_value") < 0),
+        # Toàn vẹn tham chiếu: Mã order_id phải tồn tại trong bảng orders
         ValidationRule("MISSING_ORDER_REFERENCE", F.col("order_purchase_timestamp").isNull()),
     )
 
+    # Bước 3: Khử trùng lặp xác định theo cặp khóa (order_id, order_item_id)
     return deterministic_result(
         normalized,
         rules,

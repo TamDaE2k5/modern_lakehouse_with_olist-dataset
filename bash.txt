@@ -1,3 +1,6 @@
+=======load images========
+    docker load -i olist-lakehouse-images.tar
+
 =======down========
     docker compose --project-name olist-lakehouse \
       -f docker-compose.yml \

@@ -1,4 +1,14 @@
-"""Silver pipeline orchestrator: validates Bronze data and produces Silver and Quarantine Iceberg tables."""
+"""Tiến trình Nhạc trưởng Điều phối Tầng Silver (Silver Pipeline Orchestrator).
+
+Nhiệm vụ:
+1. Đọc dữ liệu thô từ các bảng Bronze (`lakehouse.bronze.*`).
+2. Kiểm tra Preflight (sự tồn tại của bảng Bronze, đối soát schema với registry.py).
+3. Mở phiên Audit hai tầng: theo dõi toàn bộ pipeline (`pipeline_runs`) và chi tiết từng bảng (`transformation_targets`).
+4. Thực thi các hàm biến đổi & kiểm định chất lượng:
+   - Dữ liệu sạch -> Ghi vào bảng Iceberg v2 `lakehouse.silver.<target>` (phân vùng theo năm cho các bảng đơn hàng/giao dịch).
+   - Dữ liệu lỗi -> Ghi vào bảng Iceberg v2 `lakehouse.quarantine.<target>` kèm mã lỗi `_error_codes`.
+5. Hỗ trợ Zero-Config Defaults: Chạy được ngay với 0 tham số CLI, tự động sinh run_id và batch_id.
+"""
 
 from __future__ import annotations
 

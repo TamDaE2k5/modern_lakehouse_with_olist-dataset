@@ -1,4 +1,12 @@
-"""Bronze ingestion from staged MinIO CSV objects into Apache Iceberg."""
+"""Tiến trình Nhạc trưởng Điều phối nạp dữ liệu Tầng Bronze (Bronze Orchestrator).
+
+Nhiệm vụ:
+1. Đọc các file CSV từ MinIO bucket `raw/olist/`.
+2. Kiểm tra Preflight (kích thước file, header cột khớp với registry).
+3. Ghi vết Audit hai tầng vào PostgreSQL qua Apache Iceberg (`pipeline_runs` và `ingestion_batches`).
+4. Nạp dữ liệu vào bảng Iceberg v2 với cơ chế Zero-Config Defaults (chạy được ngay không cần cờ CLI).
+5. Hỗ trợ 2 chế độ: full (ghi đè toàn bộ) và incremental (chèn thêm theo batch).
+"""
 
 from __future__ import annotations
 

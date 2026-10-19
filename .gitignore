@@ -3,7 +3,7 @@ olist-lakehouse-images.tar
 /data
 NHAT_KY*.*
 */test_smoke_*.*
-
+docs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

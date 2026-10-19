@@ -1,4 +1,13 @@
-"""Spark transformations for source-shaped Bronze records."""
+"""Các phép biến đổi và bổ sung metadata xuất xứ (Lineage) cho dữ liệu thô Tầng Bronze.
+
+Nguyên tắc Tầng Bronze:
+- Bảo toàn nguyên vẹn 100% dữ liệu gốc từ CSV, không lọc bỏ, không ép kiểu mất mát.
+- Gắn thêm 4 cột metadata hệ thống phục vụ truy vết (Lineage) và phân vùng (Partitioning):
+  1. _ingestion_timestamp: Thời điểm chính xác nạp dữ liệu vào Lakehouse (UTC).
+  2. _ingestion_date: Ngày nạp (dùng để phân vùng bảng Iceberg theo days(_ingestion_date)).
+  3. _batch_id: Mã định danh đợt nạp (phục vụ chạy bù/idempotent batch replay).
+  4. _source_file: Tên file nguồn (ví dụ: olist_orders_dataset.csv).
+"""
 
 from __future__ import annotations
 
@@ -14,7 +23,8 @@ def add_ingestion_metadata(
     source_file: str,
     ingested_at: datetime,
 ) -> DataFrame:
-    """Return source values unchanged with deterministic Bronze lineage columns."""
+    """Giữ nguyên toàn bộ giá trị nguồn và gắn thêm 4 cột metadata Bronze."""
+    # Đảm bảo thời gian theo chuẩn UTC
     utc_time = (
         ingested_at.replace(tzinfo=timezone.utc)
         if ingested_at.tzinfo is None
