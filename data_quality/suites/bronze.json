@@ -1,0 +1,42 @@
+{
+  "suite_name": "bronze_quality",
+  "great_expectations_version": "1.21.0",
+  "tables": {
+    "customers": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "customer_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "orders": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "order_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "order_items": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "order_id", "order_item_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "order_payments": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "order_id", "payment_sequential"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "order_reviews": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "review_id", "order_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "products": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "product_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "sellers": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "seller_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "geolocation": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "geolocation_zip_code_prefix", "geolocation_lat", "geolocation_lng", "geolocation_city", "geolocation_state"]}, "meta": {"severity": "WARN"}}
+    ]},
+    "product_category_translation": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["_batch_id", "product_category_name"]}, "meta": {"severity": "ERROR"}}
+    ]}
+  }
+}

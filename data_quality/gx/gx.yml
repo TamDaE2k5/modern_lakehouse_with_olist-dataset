@@ -1,0 +1,35 @@
+config_version: 4.0
+analytics_enabled: false
+fluent_datasources: {}
+expectations_store_name: expectations_store
+validation_results_store_name: validation_results_store
+checkpoint_store_name: checkpoint_store
+stores:
+  expectations_store:
+    class_name: ExpectationsStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: ../../runtime/gx/expectations/
+  validation_results_store:
+    class_name: ValidationResultsStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: ../../runtime/gx/validations/
+  checkpoint_store:
+    class_name: CheckpointStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: ../../runtime/gx/checkpoints/
+  validation_definition_store:
+    class_name: ValidationDefinitionStore
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: ../../runtime/gx/validation_definitions/
+data_docs_sites:
+  local_site:
+    class_name: SiteBuilder
+    store_backend:
+      class_name: TupleFilesystemStoreBackend
+      base_directory: ../../runtime/gx/data_docs/
+    site_index_builder:
+      class_name: DefaultSiteIndexBuilder

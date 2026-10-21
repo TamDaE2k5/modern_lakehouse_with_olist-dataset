@@ -45,3 +45,10 @@
   • 8080 / 8081: Spark Web UI nội bộ
   • 9115: Blackbox Exporter (Prometheus scrape nội bộ)
   • 8000: Pipeline Metrics Exporter (Prometheus scrape nội bộ)
+
+  • MinIO Storage: http://localhost:9001 (root / admin_root)
+  • PostgreSQL: Iceberg JDBC Catalog, Airflow DB, Superset DB
+  • Spark Master UI: http://localhost:8084
+  • Airflow Web UI: http://localhost:8083 (admin / admin)
+  • Trino Query Engine: http://localhost:8082
+  • Apache Superset BI: http://localhost:8088 (olist_admin / admin)

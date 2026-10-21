@@ -1,0 +1,40 @@
+{
+  "suite_name": "silver_quality",
+  "great_expectations_version": "1.21.0",
+  "tables": {
+    "customers": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "customer_id"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "orders": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_in_set", "kwargs": {"column": "order_status", "value_set": ["approved", "canceled", "created", "delivered", "invoiced", "processing", "shipped", "unavailable"]}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "order_id"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "order_items": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["order_id", "order_item_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "order_payments": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["order_id", "payment_sequential"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "order_reviews": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_between", "kwargs": {"column": "review_score", "min_value": 1, "max_value": 5}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["review_id", "order_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "products": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "product_id"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "sellers": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "seller_id"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "geography": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "zip_code_prefix"}, "meta": {"severity": "ERROR"}}
+    ]}
+  }
+}

@@ -123,6 +123,12 @@
             "column": {
               "name": "purchase_timestamp"
             }
+          },
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000005",
+            "column": {
+              "name": "purchase_timestamp"
+            }
           }
         ],
         "defaultDataMask": {

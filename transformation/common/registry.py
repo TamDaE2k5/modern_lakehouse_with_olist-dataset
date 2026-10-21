@@ -140,7 +140,7 @@ TABLE_SPECS: dict[str, TableSpec] = {
         name="geolocation",
         csv_file="olist_geolocation_dataset.csv",
         grain="One source coordinate observation",
-        key=("_row_hash",),
+        key=("geolocation_zip_code_prefix", "geolocation_lat", "geolocation_lng", "geolocation_city", "geolocation_state"),
         columns=_columns(
             _source("geolocation_zip_code_prefix"),
             _source("geolocation_lat"),

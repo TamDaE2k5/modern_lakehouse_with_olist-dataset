@@ -1,0 +1,62 @@
+{
+  "suite_name": "gold_quality",
+  "great_expectations_version": "1.21.0",
+  "tables": {
+    "dim_date": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "date_key"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "dim_customer": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "customer_key"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "dim_product": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "product_key"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "dim_seller": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "seller_key"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "dim_geography": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "geography_key"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "fact_orders": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_column_values_to_be_unique", "kwargs": {"column": "order_id"}, "meta": {"severity": "ERROR"}}
+    ]},
+    "fact_order_items": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["order_id", "order_item_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "fact_payments": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["order_id", "payment_sequential"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "fact_reviews": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["review_id", "order_id"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "bridge_review_products": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["review_id", "order_id", "product_key"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "bridge_review_sellers": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["review_id", "order_id", "seller_key"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "mart_daily_revenue": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["revenue_date", "customer_state", "product_category"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "mart_seller_performance": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["month_start", "seller_key"]}, "meta": {"severity": "ERROR"}}
+    ]},
+    "mart_product_performance": {"expectations": [
+      {"expectation_type": "expect_table_row_count_to_be_between", "kwargs": {"min_value": 1}, "meta": {"severity": "ERROR"}},
+      {"expectation_type": "expect_compound_columns_to_be_unique", "kwargs": {"column_list": ["month_start", "product_category"]}, "meta": {"severity": "ERROR"}}
+    ]}
+  }
+}
