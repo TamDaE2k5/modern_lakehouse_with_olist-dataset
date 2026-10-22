@@ -1,10 +1,16 @@
-# Đề Án Chiến Lược & Ý Tưởng Nâng Cấp Hệ Thống (Strategic Roadmap)
+# Đề Án Khung: 8 Ý Tưởng Chiến Lược Nâng Cấp Hệ Thống
+## Tài Liệu Định Hướng Từ Tech Lead Dành Cho Senior Engineer Tham Khảo & Đệ Trình Duyệt
 
-> **Tài liệu nghiên cứu chuyên sâu phác thảo các định hướng kiến trúc, lộ trình mở rộng quy mô và các đề xuất nâng cấp chiến lược cho hệ sinh thái Olist Modern Data Lakehouse. Tài liệu được thiết kế chi tiết để Lãnh đạo dự án và Kỹ sư trưởng có đầy đủ luận cứ đưa ra quyết định đầu tư công nghệ.**
+> [!IMPORTANT]
+> **CHỈ THỊ QUAN TRỌNG TỪ TECH LEAD (SẾP):**
+> 1. Tài liệu này là **Đề án khung nghiên cứu kiến trúc dài hạn**.
+> 2. Nhiệm vụ tối thượng của Senior Engineer trong giai đoạn hiện tại là **hoàn thành 100% các task kỹ thuật tồn đọng, chạy benchmark hiệu năng và rà soát chuẩn hóa tài liệu**. Khối lượng task hiện tại là rất lớn và phải được ưu tiên số một.
+> 3. Cậu **TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP TỰ Ý CODE BẤT KỲ Ý TƯỞNG NÀO** trong tài liệu này trước khi hoàn thành các task kỹ thuật hiện tại và được tôi (Sếp) họp xem xét, phê duyệt phương án!
+> 4. Sau khi hoàn thành xong các task kỹ thuật, cậu sẽ dựa vào tài liệu này để chắt lọc và viết thành **5 đến 10 ý tưởng nâng cấp siêu chi tiết** trong bản Báo cáo nghiệm thu cuối cùng gửi lên bàn làm việc của tôi.
 
 ---
 
-## 1. Tầm Nhìn Kiến Trúc Tổng Thể (Vision Statement)
+## 1. Tầm Nhìn Kiến Trúc Dài Hạn (Enterprise Vision)
 
 Hệ sinh thái hiện tại đã hoàn thành xuất sắc vai trò của một **Modern Data Lakehouse chuẩn công nghiệp vận hành theo mô hình Batch (Medallion Architecture)** trên môi trường kiểm thử cục bộ. Tuy nhiên, để đáp ứng sự phát triển mạnh mẽ của hoạt động thương mại điện tử trong kỷ nguyên số, hệ thống cần tiến hóa từ một nền tảng lưu trữ/phân tích truyền thống sang một **Nền tảng Dữ liệu Doanh nghiệp Thông minh (Intelligent Enterprise Data Platform)**:
 
@@ -27,11 +33,11 @@ Hệ sinh thái hiện tại đã hoàn thành xuất sắc vai trò của một
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Dưới đây là **6 ý tưởng nâng cấp chiến lược** được phân tích chi tiết về bối cảnh, kiến trúc, kế hoạch thực thi, ưu/nhược điểm và ma trận ra quyết định.
+Dưới đây là **8 ý tưởng nâng cấp chiến lược** được phân tích chi tiết về bối cảnh, kiến trúc, kế hoạch thực thi, ưu/nhược điểm và ma trận ra quyết định.
 
 ---
 
-## 2. Chi Tiết 6 Ý Tưởng Nâng Cấp Chiến Lược
+## 2. Chi Tiết 8 Ý Tưởng Nâng Cấp Chiến Lược
 
 ---
 
@@ -257,28 +263,54 @@ Trong một Data Lakehouse vận hành lâu dài, 80% chi phí lưu trữ và t�
 
 ---
 
-## 3. Ma Trận Đánh Giá & Lộ Trình Lựa Chọn Đầu Tư (Decision Matrix)
+### Ý TƯỞNG 7: Công Cụ Phát Hiện Gian Lận Giao Dịch Thời Gian Thực
+*(Real-Time Transaction Fraud Detection Engine)*
 
-Để giúp Lãnh đạo dự án dễ dàng lựa chọn định hướng phát triển phù hợp nhất với nguồn lực và ngân sách hiện tại, dưới đây là bảng ma trận chấm điểm tổng hợp:
-
-| Hạng mục Nâng cấp | Độ Phức Tạp Kỹ thuật | Chi Phí Triển Khai | Giá Trị Mang Lại cho Kinh Doanh | Thời Gian Ước Tính | Đề Xuất Ưu Tiên |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| **Ý tưởng 1: Real-time Streaming** | Cao (3/5) | Trung bình | Rất lớn (Phát hiện gian lận, Flash-sale) | 3 - 4 tuần | ⭐⭐⭐⭐ (Ưu tiên số 2) |
-| **Ý tưởng 2: Chuẩn hóa dbt-core** | Trung bình (2/5) | Thấp (Mã nguồn mở) | Rất lớn (Chuẩn hóa modeling, tự sinh Lineage)| 1 - 2 tuần | ⭐⭐⭐⭐⭐ (Khuyên làm ngay) |
-| **Ý tưởng 3: Quản trị DataHub** | Trung bình (2/5) | Thấp | Lớn (Bảo mật PII, Catalog tập trung) | 2 tuần | ⭐⭐⭐ |
-| **Ý tưởng 4: AI/ML & Feature Store**| Cao (4/5) | Trung bình | Cực kỳ lớn (Dự đoán Churn, Gợi ý hàng) | 4 - 6 tuần | ⭐⭐⭐⭐ (Ưu tiên số 3) |
-| **Ý tưởng 5: Lên Cloud Native** | Rất cao (4/5) | Cao (Chi phí Cloud)| Lớn (Mở rộng vô hạn, Serverless) | 4 - 8 tuần | ⭐⭐⭐ (Khi cần scale lớn) |
-| **Ý tưởng 6: FinOps & Z-Order** | Thấp (1/5) | Rất thấp | Cao (Tăng tốc truy vấn gấp 3 lần, tiết kiệm đĩa)| 3 - 5 ngày | ⭐⭐⭐⭐⭐ (Khuyên làm ngay) |
+#### 1. Bối cảnh & Điểm nghẽn
+Dữ liệu Olist cho thấy có các trường hợp khách hàng sử dụng nhiều voucher thanh toán (`voucher`), nhiều phương thức thanh toán dồn dập trong khoảng thời gian ngắn hoặc đặt hàng từ nhiều IP/địa chỉ khác nhau bằng cùng 1 thẻ tín dụng.
+#### 2. Kiến trúc Giải pháp Đề xuất
+Xây dựng một Fraud Rule Engine tích hợp trực tiếp vào luồng Ingestion Silver:
+* Áp dụng cửa sổ trượt (Sliding Window): Đếm số lượng giao dịch thanh toán của cùng `customer_unique_id` trong 10 phút. Nếu số lần thanh toán thất bại vượt quá 3 lần hoặc tổng thanh toán vượt quá ngưỡng bất thường, tự động gán nhãn `is_suspicious_fraud = true` và bắn cảnh báo về Slack / Webhook.
+#### 3. Giá trị Mang lại
+Bảo vệ doanh thu cho người bán và uy tín của sàn thương mại điện tử, giảm thiểu rủi ro bồi hoàn thẻ (Chargeback).
 
 ---
 
-## 4. Khuyến Nghị Hành Động Tiếp Theo Dành Cho Chủ Sở Hữu Dự Án
+### Ý TƯỞNG 8: Trợ Lý Phân Tích Dữ Liệu Tự Động Hóa Với GenAI (Text-to-SQL Analytics Agent)
+*(Semantic Caching, LLM Agent & Trino SQL Generation)*
 
-Nếu bạn muốn tiếp tục nâng cấp dự án này lên một tầm cao mới, khuyến nghị lộ trình 2 chặng thực tế nhất như sau:
+#### 1. Bối cảnh & Điểm nghẽn
+Các Giám đốc Kinh doanh và Quản lý ngành hàng (Category Managers) không biết viết SQL để truy vấn Trino và thường phải chờ đợi đội ngũ Data Analytics viết báo cáo Superset mất vài ngày.
+#### 2. Kiến trúc Giải pháp Đề xuất
+Xây dựng một trợ lý AI hỏi-đáp dữ liệu (Text-to-SQL Agent):
+* Sử dụng mô hình ngôn ngữ lớn (Gemini / Claude / Llama 3) kết hợp với **Semantic Views** sẵn có của Trino (`vw_order_lines`, `vw_order_summary`, `vw_payment_summary`).
+* Người dùng chỉ cần gõ câu hỏi tự nhiên: *"Top 5 bang có doanh thu cao nhất tháng 8/2018 là những bang nào?"*
+* AI Agent tự động chuyển thành câu lệnh Trino SQL chuẩn, thực thi qua Trino REST API và vẽ biểu đồ trả về trực tiếp trên Slack/Teams hoặc Web Chatbot.
+* Cấu hình Redis Semantic Cache để lưu kết quả các câu hỏi phổ biến, giảm 90% chi phí suy luận LLM và tải truy vấn Trino.
+#### 3. Giá trị Mang lại
+Dân chủ hóa dữ liệu (Data Democratization), giúp toàn bộ doanh nghiệp tự phục vụ phân tích dữ liệu (Self-service Analytics) trong vài giây.
 
-1. **Giai đoạn Ngắn hạn (Quick Wins - Hoàn thành trong 1 - 2 tuần):**
-   * Triển khai **Ý tưởng 6 (Z-Order Clustering)** và **Ý tưởng 2 (dbt-core)**. Đây là hai hạng mục chi phí thấp nhất, không làm phát sinh thêm hạ tầng nặng nề, nhưng ngay lập tức mang lại cấu trúc code chuẩn mực quốc tế và tăng tốc độ truy vấn Trino lên gấp 3 lần.
-2. **Giai đoạn Dài hạn (Strategic Expansion - Triển khai trong 1 - 2 tháng):**
-   * Nếu bài toán trọng tâm là **Tăng trưởng Doanh thu**: Chọn **Ý tưởng 4 (Hệ thống AI/ML Churn & Recommendation Engine)**.
-   * Nếu bài toán trọng tâm là **Vận hành Thời gian Thực**: Chọn **Ý tưởng 1 (Real-time Streaming với Kafka & Iceberg)**.
-   * Nếu cần đưa dự án vào **Sản xuất Quy mô Lớn (Enterprise Scale)**: Triển khai **Ý tưởng 5 (Cloud Migration lên AWS/GCP)**.
+---
+
+## 3. Ma Trận Đánh Giá & Khuyến Nghị Thứ Tự Ưu Tiên
+
+Bảng ma trận này giúp Tech Lead và Ban Lãnh đạo thẩm định khi Senior Engineer đệ trình đề xuất:
+
+| Hạng mục Nâng cấp | Độ Phức Tạp | Chi Phí Đầu Tư | Giá Trị Kinh Doanh | Thời Gian Ước Tính | Khuyến Nghị Phê Duyệt |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **Ý tưởng 6: FinOps & Z-Order** | Thấp (1/5) | Rất thấp | Cao (Tăng tốc Trino 3x, tiết kiệm 75% đĩa) | 3 - 5 ngày | ⭐⭐⭐⭐⭐ (Nên duyệt làm trước) |
+| **Ý tưởng 2: Chuẩn hóa dbt-core** | Trung bình (2/5) | Thấp (Open-source) | Rất lớn (Chuẩn hóa code, tự sinh lineage) | 1 - 2 tuần | ⭐⭐⭐⭐⭐ (Khuyên duyệt đợt 1) |
+| **Ý tưởng 7: Fraud Detection** | Trung bình (2/5) | Thấp | Cao (Chống thất thoát doanh thu) | 1 - 2 tuần | ⭐⭐⭐⭐ (Khuyên duyệt đợt 2) |
+| **Ý tưởng 1: Real-time Streaming**| Cao (3/5) | Trung bình | Rất lớn (Giảm độ trễ từ 24h xuống 30s) | 3 - 4 tuần | ⭐⭐⭐⭐ (Khuyên duyệt đợt 2) |
+| **Ý tưởng 4: AI/ML Feature Store** | Cao (4/5) | Trung bình | Cực kỳ lớn (Tăng trưởng doanh thu cá nhân hóa)| 4 - 6 tuần | ⭐⭐⭐⭐ (Khuyên duyệt đợt 3) |
+| **Ý tưởng 8: GenAI Text-to-SQL** | Trung bình (3/5) | Trung bình (Token API)| Lớn (Self-service analytics tức thì) | 2 - 3 tuần | ⭐⭐⭐ (Thử nghiệm PoC) |
+| **Ý tưởng 3: Quản trị DataHub** | Trung bình (2/5) | Thấp | Lớn (Tuân thủ bảo mật PII, data catalog) | 2 tuần | ⭐⭐⭐ (Khi team > 10 người) |
+| **Ý tưởng 5: Lên Cloud Native** | Rất cao (4/5) | Cao (Phí Cloud định kỳ)| Lớn (Serverless, scale không giới hạn) | 4 - 8 tuần | ⭐⭐⭐ (Khi scale > 1 TB) |
+
+---
+
+## 4. Hướng Dẫn Senior Engineer Chuẩn Bị Hồ Sơ Đệ Trình Sếp
+
+Khi hoàn tất toàn bộ các task kỹ thuật của giai đoạn 1, 2 và 3, cậu hãy trích chọn từ **5 đến 10 ý tưởng** từ danh sách trên (hoặc bổ sung thêm ý tưởng sáng tạo của cậu), đào sâu chi tiết về kế hoạch thực thi cụ thể trong bối cảnh Olist và đính kèm vào phần cuối của file báo cáo nghiệm thu. 
+
+Tôi sẽ trực tiếp chủ trì buổi họp duyệt hồ sơ của cậu để quyết định phê duyệt những ý tưởng nào trước khi cấp tài nguyên cho cậu triển khai tiếp!
