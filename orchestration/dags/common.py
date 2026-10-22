@@ -270,16 +270,25 @@ def runtime_validation_task() -> PythonOperator:
 
 
 def build_job_arguments(*, run_suffix: str, include_mode: bool) -> list[str]:
-    """Tạo danh sách tham số dòng lệnh CLI có Jinja templating an toàn cho Spark job."""
+    """Tạo danh sách tham số dòng lệnh CLI có Jinja templating an toàn cho Spark job.
+
+    Cơ chế sinh mã Run ID độc nhất:
+    - Khi người dùng kích hoạt thủ công và truyền run_id (ví dụ 'manual-af-01'): Sử dụng chính run_id đó.
+    - Khi Airflow tự động chạy theo lịch định kỳ (run_id mặc định là 'auto'): Sử dụng biểu thức Jinja
+      `{{ ts_nodash }}` (ví dụ '20261021T000000') để đảm bảo mỗi lần chạy tự động đều có Run ID duy nhất,
+      tránh va chạm bản ghi trạng thái trong bảng audit `lakehouse.control.pipeline_runs`.
+    """
     if SAFE_SUFFIX.fullmatch(run_suffix) is None:
         raise ValueError(f"Hậu tố run_suffix không hợp lệ: {run_suffix}")
+    run_template = "{% if params.run_id == 'auto' %}{{ ts_nodash }}{% else %}{{ params.run_id }}{% endif %}"
+    batch_template = "{% if params.batch_id == 'auto' %}{{ ts_nodash }}{% else %}{{ params.batch_id }}{% endif %}"
     arguments = [
         "--run-id",
-        f"{{{{ params.run_id }}}}-{run_suffix}",
+        f"{run_template}-{run_suffix}",
         "--attempt-id",
         "{{ ti.try_number }}",
         "--batch-id",
-        "{{ params.batch_id }}",
+        batch_template,
     ]
     if include_mode:
         arguments.extend(("--mode", "{{ params.mode }}"))

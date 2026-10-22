@@ -105,6 +105,13 @@ with DAG(
         write_pool_slots=1,
     )
 
+    # 5. Giai đoạn Quality: Kiểm định chất lượng toàn diện Bronze -> Silver -> Gold (198 checks)
+    run_quality = spark_submit_task(
+        task_id="run_quality_checks",
+        application="/opt/lakehouse/transformation/quality/job.py",
+        application_args=build_job_arguments(run_suffix="quality", include_mode=False),
+    )
+
     pipeline_complete = EmptyOperator(task_id="lakehouse_pipeline_complete")
 
     # Xâu chuỗi toàn bộ luồng thực thi End-to-End
@@ -115,5 +122,6 @@ with DAG(
         # silver_tasks chạy song song ở giữa
         >> silver_complete
         >> build_gold
+        >> run_quality
         >> pipeline_complete
     )
