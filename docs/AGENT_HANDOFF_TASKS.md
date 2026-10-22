@@ -136,12 +136,15 @@ Lập file Markdown: `docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md` g�
 4. **Danh sách các tài liệu đã rà soát và sửa đổi:** Liệt kê các file trong `docs/` đã cập nhật.
 
 ### 5.2. Đề Xuất 5 Đến 10 Ý Tưởng Nâng Cấp Siêu Chi Tiết (Chờ Sếp Duyệt)
-Cậu hãy đọc kỹ tài liệu nghiên cứu khung mà tôi đã chuẩn bị sẵn tại [**`rebuild/docs/Y_TUONG_NANG_CAP_DU_AN.md`**](file:///run/media/tamdae/04C8A69DC8A68C8C/Users/LENOVO/Documents/TL_Kỳ_1_năm_4/Big_Data/rebuild/docs/Y_TUONG_NANG_CAP_DU_AN.md). Từ đó, phát triển thành danh sách **5 đến 10 ý tưởng nâng cấp chiến lược siêu chi tiết**, mỗi ý tưởng phải trình bày rõ:
-* *Tên ý tưởng & Mục tiêu kinh doanh.*
-* *Kiến trúc kỹ thuật đề xuất (kèm sơ đồ ASCII / Mermaid).*
-* *Kế hoạch triển khai công nghệ cụ thể.*
-* *Phân tích Lợi ích (Pros) vs. Rủi ro / Chi phí (Cons).*
-* *Ước tính thời gian và tài nguyên cần thiết.*
+Cậu hãy đọc kỹ yêu cầu, tiêu chuẩn 'siêu chi tiết' và 5 trục tư duy chiến lược tại [**`rebuild/docs/Y_TUONG_NANG_CAP_DU_AN.md`**](file:///run/media/tamdae/04C8A69DC8A68C8C/Users/LENOVO/Documents/TL_Kỳ_1_năm_4/Big_Data/rebuild/docs/Y_TUONG_NANG_CAP_DU_AN.md). 
+
+Tôi cố tình không mớm sẵn bất kỳ ý tưởng mẫu nào ở đây để cậu tự mình động não độc lập dựa trên kinh nghiệm thực tế cậu vừa trải qua ở 3 giai đoạn đầu. Cậu hãy tự đề xuất từ **5 đến 10 ý tưởng nâng cấp chiến lược siêu chi tiết**, mỗi ý tưởng bắt buộc phải tuân thủ đúng cấu trúc 6 phần chuẩn mực:
+1. *Tên ý tưởng & Bài toán nghiệp vụ cần giải quyết.*
+2. *Kiến trúc kỹ thuật đề xuất (kèm sơ đồ ASCII / Mermaid).*
+3. *Lựa chọn công nghệ & Luận cứ biện minh (Vì sao chọn nó?).*
+4. *Kế hoạch triển khai từng bước cụ thể.*
+5. *Phân tích Đánh đổi & Quản trị rủi ro (Pros, Cons, Risks).*
+6. *Dự toán tài nguyên (RAM/CPU) và thời gian thực hiện.*
 
 > [!CAUTION]
 > **LỆNH TỪ SẾP:** Cậu chỉ dừng lại ở việc soạn thảo đề xuất ý tưởng trong báo cáo. Cậu **TUYỆT ĐỐI KHÔNG ĐƯỢC PHÉP TỰ Ý TRIỂN KHAI** bất kỳ ý tưởng nào trước khi tôi họp xem xét và ký duyệt phương án! Tập trung làm thật chuẩn chỉnh các task hiện tại cho tôi trước đã!
