@@ -80,6 +80,7 @@ params.update(
 def maintenance_arguments(*, action: str, run_suffix: str) -> list[str]:
     """Tạo danh sách đối số dòng lệnh an toàn cho job Spark maintenance."""
     arguments = build_job_arguments(run_suffix=run_suffix, include_mode=True)
+    run_base = "{% if params.run_id == 'auto' %}{{ ts_nodash }}{% else %}{{ params.run_id }}{% endif %}"
     arguments.extend(
         [
             "--namespace",
@@ -87,7 +88,7 @@ def maintenance_arguments(*, action: str, run_suffix: str) -> list[str]:
             "--table",
             "{{ params.table }}",
             "--approval-run-id",
-            "{{ params.run_id }}",
+            run_base,
             "--action",
             action,
             "--retention-hours",
@@ -95,7 +96,7 @@ def maintenance_arguments(*, action: str, run_suffix: str) -> list[str]:
             "--orphan-older-than-hours",
             "{{ params.orphan_older_than_hours }}",
             "--dry-run-report",
-            "/opt/airflow/logs/maintenance/{{ params.run_id }}/dry-run.json",
+            f"/opt/airflow/logs/maintenance/{run_base}/dry-run.json",
         ]
     )
     return arguments

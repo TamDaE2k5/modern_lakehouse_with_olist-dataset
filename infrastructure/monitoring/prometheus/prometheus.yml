@@ -59,3 +59,11 @@ scrape_configs:
     static_configs:
       - targets: ["http://airflow-webserver:8080/health"]
     relabel_configs: *blackbox_relabel
+
+  - job_name: superset-health
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://superset:8088/health"]
+    relabel_configs: *blackbox_relabel

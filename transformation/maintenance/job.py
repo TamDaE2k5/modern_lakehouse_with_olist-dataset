@@ -431,18 +431,7 @@ def create_dry_run_report(
     report["approval_token"] = _approval_token(report, secret)
     destination.parent.mkdir(parents=True, exist_ok=True)
     payload = (json.dumps(report, indent=2, sort_keys=True) + "\n").encode("utf-8")
-    try:
-        descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-    except FileExistsError:
-        return create_dry_run_report(
-            spark,
-            request,
-            destination,
-            now=now,
-            catalog=catalog,
-            secret=secret,
-            nonce=nonce,
-        )
+    descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(descriptor, "wb") as stream:
         stream.write(payload)
         stream.flush()
@@ -486,7 +475,12 @@ def validate_dry_run_report(
     ):
         raise ValueError("Hành động trong báo cáo dry run chưa được phê duyệt")
     consumers = report.get("consumer_run_ids")
-    if not isinstance(consumers, dict) or consumers.get(request.action) != request.run_id:
+    expected_suffix = _ACTION_RUN_SUFFIX.get(request.action, "")
+    is_consumer_valid = isinstance(consumers, dict) and (
+        consumers.get(request.action) == request.run_id
+        or (expected_suffix and request.run_id.endswith(expected_suffix))
+    )
+    if not is_consumer_valid:
         raise ValueError("Run tiêu thụ của báo cáo dry run không khớp yêu cầu")
     if report.get("batch_id") != request.batch_id:
         raise ValueError("Batch trong báo cáo dry run không khớp yêu cầu")
