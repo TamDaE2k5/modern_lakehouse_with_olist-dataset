@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Bức Tranh Dự Án Trong 60 Giây (Executive Summary)
+## 1. Bức Tranh Dự Án (Executive Summary)
 
 * **Bản chất hệ thống:** Đây là một nền tảng **Modern Data Lakehouse chuẩn công nghiệp** xử lý dữ liệu thương mại điện tử Olist (Kaggle), vận hành theo kiến trúc huy chương **Medallion Architecture (Bronze → Silver → Gold)**.
 * **Định dạng lưu trữ:** Bảng mở **Apache Iceberg** lưu trữ trên nền **MinIO Object Storage (S3)**, quản lý metadata qua **PostgreSQL JDBC Catalog**.
@@ -71,9 +71,12 @@ Cậu hãy mở IDE và lần lượt thực hiện 5 task sau theo thứ tự:
 
 ## 5. Cheatsheet Lệnh Vận Hành Nhanh (Dành Cho Kỹ Sư)
 
-### 5.1. Bật và Tắt Hệ Thống (12 Containers)
+### 5.1. Nạp Images & Bật/Tắt Hệ Thống (12 Containers)
 ```bash
-# Khởi động toàn bộ 12 container
+# 1. Nạp sẵn toàn bộ Docker Images đã đóng gói (tránh mất thời gian build lại):
+docker load -i olist-lakehouse-images.tar
+
+# 2. Khởi động toàn bộ 12 container dịch vụ
 docker compose --project-name olist-lakehouse \
   -f docker-compose.yml \
   -f docker-compose.query.yml \
@@ -82,7 +85,7 @@ docker compose --project-name olist-lakehouse \
   -f docker-compose.monitoring.yml \
 up -d
 
-# Tắt toàn bộ container để giải phóng RAM (bảo toàn nguyên vẹn 100% dữ liệu)
+# 3. Tắt toàn bộ container để giải phóng RAM (bảo toàn nguyên vẹn 100% dữ liệu)
 docker compose --project-name olist-lakehouse \
   -f docker-compose.yml \
   -f docker-compose.query.yml \
