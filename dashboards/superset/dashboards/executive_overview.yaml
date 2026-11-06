@@ -21,7 +21,8 @@
       ],
       "children": [
         "ROW-1",
-        "ROW-2"
+        "ROW-2",
+        "ROW-3"
       ]
     },
     "HEADER_ID": {
@@ -95,6 +96,37 @@
         "GRID_ID",
         "ROW-2"
       ]
+    },
+    "ROW-3": {
+      "id": "ROW-3",
+      "type": "ROW",
+      "children": [
+        "CHART-30000000-0000-4000-8000-000000000014"
+      ],
+      "meta": {
+        "background": "BACKGROUND_TRANSPARENT"
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID"
+      ]
+    },
+    "CHART-30000000-0000-4000-8000-000000000014": {
+      "id": "CHART-30000000-0000-4000-8000-000000000014",
+      "type": "CHART",
+      "children": [],
+      "meta": {
+        "chartId": 14,
+        "height": 60,
+        "sliceName": "Phễu chuyển đổi vòng đời đơn hàng",
+        "uuid": "30000000-0000-4000-8000-000000000014",
+        "width": 12
+      },
+      "parents": [
+        "ROOT_ID",
+        "GRID_ID",
+        "ROW-3"
+      ]
     }
   },
   "metadata": {
@@ -129,6 +161,12 @@
             "column": {
               "name": "purchase_timestamp"
             }
+          },
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000008",
+            "column": {
+              "name": "purchase_date"
+            }
           }
         ],
         "defaultDataMask": {
@@ -147,7 +185,7 @@
           "excluded": []
         },
         "type": "NATIVE_FILTER",
-        "description": ""
+        "description": "Khoảng ngày mua hàng. Áp dụng đồng bộ cho MỌI biểu đồ trên dashboard, bao gồm cả phễu chuyển đổi vòng đời đơn hàng."
       },
       {
         "id": "NATIVE_FILTER-EXEC-STATUS",
@@ -183,6 +221,45 @@
         },
         "type": "NATIVE_FILTER",
         "description": ""
+      },
+      {
+        "id": "NATIVE_FILTER-EXEC-STATE",
+        "controlValues": {
+          "enableEmptyFilter": false,
+          "defaultToFirstItem": false,
+          "multiSelect": true,
+          "searchAllOptions": false,
+          "inverseSelection": false
+        },
+        "name": "Bang của khách hàng",
+        "filterType": "filter_select",
+        "targets": [
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000001",
+            "column": {
+              "name": "customer_state"
+            }
+          },
+          {
+            "datasetUuid": "20000000-0000-4000-8000-000000000008",
+            "column": {
+              "name": "customer_state"
+            }
+          }
+        ],
+        "defaultDataMask": {
+          "extraFormData": {},
+          "filterState": {}
+        },
+        "cascadeParentIds": [],
+        "scope": {
+          "rootPath": [
+            "ROOT_ID"
+          ],
+          "excluded": []
+        },
+        "type": "NATIVE_FILTER",
+        "description": "Lọc theo bang của khách hàng, đồng bộ trên toàn bộ biểu đồ của dashboard."
       }
     ]
   },

@@ -1,0 +1,85 @@
+{
+  "table_name": "funnel_order_lifecycle",
+  "main_dttm_col": "purchase_date",
+  "currency_code_column": null,
+  "description": "Dataset phễu vòng đời đơn hàng Olist. Mỗi đơn hàng sinh ra một dòng cho MỖI giai đoạn mà nó đã đi qua, nhờ vậy phép đếm theo giai đoạn cho ra đúng hình phễu, đồng thời vẫn giữ lại purchase_date và customer_state để lọc chéo (cross-filter) toàn dashboard.",
+  "default_endpoint": null,
+  "offset": 0,
+  "cache_timeout": null,
+  "schema": "gold",
+  "catalog": "lakehouse",
+  "sql": "SELECT\n    s.stage_order,\n    s.funnel_stage,\n    o.order_id,\n    CAST(o.purchase_timestamp AS DATE) AS purchase_date,\n    o.order_status,\n    c.customer_state,\n    o.payment_total\nFROM lakehouse.gold.fact_orders o\nLEFT JOIN lakehouse.gold.dim_customer c ON o.customer_key = c.customer_key\nCROSS JOIN (VALUES\n    (1, '1. Đặt hàng'),\n    (2, '2. Đã duyệt thanh toán'),\n    (3, '3. Đã bàn giao vận chuyển'),\n    (4, '4. Giao hàng thành công'),\n    (5, '5. Khách đã đánh giá')\n) AS s(stage_order, funnel_stage)\nWHERE s.stage_order = 1\n   OR (s.stage_order = 2 AND o.approval_date_key > 0)\n   OR (s.stage_order = 3 AND o.carrier_date_key > 0)\n   OR (s.stage_order = 4 AND o.delivered_date_key > 0)\n   OR (s.stage_order = 5 AND o.average_review_score IS NOT NULL)",
+  "source_db_engine": null,
+  "params": null,
+  "template_params": null,
+  "filter_select_enabled": true,
+  "fetch_values_predicate": null,
+  "extra": null,
+  "uuid": "20000000-0000-4000-8000-000000000008",
+  "columns": [
+    {
+      "column_name": "stage_order",
+      "type": "INTEGER",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "funnel_stage",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_id",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "purchase_date",
+      "type": "DATE",
+      "is_dttm": true,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "order_status",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "customer_state",
+      "type": "VARCHAR",
+      "is_dttm": false,
+      "groupby": true,
+      "filterable": true
+    },
+    {
+      "column_name": "payment_total",
+      "type": "DECIMAL",
+      "is_dttm": false,
+      "groupby": false,
+      "filterable": true
+    }
+  ],
+  "metrics": [
+    {
+      "metric_name": "order_count",
+      "verbose_name": "Số đơn hàng",
+      "expression": "COUNT(DISTINCT order_id)",
+      "metric_type": null,
+      "description": "Số đơn hàng riêng biệt đã đạt tới giai đoạn này trong vòng đời.",
+      "d3format": ",d",
+      "currency": null,
+      "extra": null,
+      "warning_text": null
+    }
+  ],
+  "version": "1.0.0",
+  "database_uuid": "10000000-0000-4000-8000-000000000001"
+}

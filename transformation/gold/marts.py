@@ -178,17 +178,29 @@ def _validated_attributes(
     lookup_name: str,
     attributes: tuple[str, ...],
 ) -> DataFrame:
-    """Tra cứu và chuẩn hóa các thuộc tính từ bảng Dimension có kiểm định an toàn."""
+    """Tra cứu, chuẩn hóa thuộc tính Dimension có kiểm định an toàn và gợi ý Broadcast Join.
+
+    Đầu vào : bảng Chiều + tên khóa tự nhiên/khóa đại diện + danh sách thuộc tính cần lấy.
+    Xử lý   : kiểm định ánh xạ 1-1, rồi rút gọn còn khóa đại diện kèm các thuộc tính cần thiết.
+    Đầu ra  : DataFrame tra cứu đã bọc ``F.broadcast()``.
+
+    VÌ SAO BỌC BROADCAST? Các Data Mart đều nối bảng Fact lớn với các lát cắt rất nhỏ của bảng
+    Chiều (ví dụ chỉ 2 cột ``product_key`` + ``product_category_name_english``). Broadcast giúp
+    toàn bộ phép nối diễn ra ngay trong bộ nhớ của executor, loại bỏ shuffle — đặc biệt đáng giá
+    với cấu hình Spark Worker khiêm tốn 2 nhân / 4 GiB RAM của cụm hiện tại.
+    """
     prepare_dimension_lookup(
         dimension,
         natural_key,
         surrogate_key,
         lookup_name,
     )
-    return dimension.select(
-        F.col(surrogate_key).cast("long"),
-        *(F.col(name) for name in attributes),
-    ).distinct()
+    return F.broadcast(
+        dimension.select(
+            F.col(surrogate_key).cast("long"),
+            *(F.col(name) for name in attributes),
+        ).distinct()
+    )
 
 
 # ==============================================================================

@@ -152,15 +152,34 @@ def _normalized_lookup(
     surrogate_key: str,
     lookup_name: str,
 ) -> DataFrame:
-    """Tạo bảng tra cứu chuẩn hóa và kiểm tra tính toàn vẹn (Safety Gate)."""
-    return prepare_dimension_lookup(
-        dimension,
-        natural_key,
-        surrogate_key,
-        lookup_name,
-    ).select(
-        F.col(natural_key).alias(f"_{lookup_name}_natural_key"),
-        F.col(surrogate_key).cast("long").alias(f"_{lookup_name}_surrogate_key"),
+    """Tạo bảng tra cứu chuẩn hóa, kiểm tra toàn vẹn (Safety Gate) và gợi ý Broadcast Join.
+
+    Đầu vào : một bảng Chiều (dim_customer / dim_product / dim_seller).
+    Xử lý   : kiểm định ánh xạ 1-1 rồi rút gọn còn đúng 2 cột (khóa tự nhiên, khóa đại diện).
+    Đầu ra  : DataFrame tra cứu đã được bọc gợi ý ``F.broadcast()``.
+
+    VÌ SAO BỌC BROADCAST? Bảng Fact rất lớn (``fact_order_items`` có 112.650 dòng và sẽ còn
+    phình to theo thời gian), trong khi bảng tra cứu chỉ còn 2 cột của bảng Chiều — nặng nhất
+    là dim_customer cũng chỉ khoảng 96.000 dòng (~5 MB). Nếu để Spark tự chọn, nó sẽ dùng
+    Sort-Merge Join: băm và chuyển (shuffle) CẢ HAI phía qua mạng, trong đó phía Fact là cực kỳ
+    tốn kém. Gợi ý ``broadcast`` yêu cầu Spark gửi nguyên bảng tra cứu nhỏ tới từng executor,
+    nhờ đó bảng Fact được nối tại chỗ và **giai đoạn shuffle bị loại bỏ hoàn toàn**.
+
+    Vì sao dùng gợi ý tường minh mà không dựa vào ngưỡng tự động (``autoBroadcastJoinThreshold``
+    mặc định 10 MB)? Vì ngưỡng đó dựa trên ước lượng kích thước của Spark, mà với nguồn Iceberg
+    ước lượng này thường bị thổi phồng khiến Spark âm thầm quay về Sort-Merge Join. Gợi ý tường
+    minh cho kết quả ổn định, không phụ thuộc chất lượng ước lượng thống kê.
+    """
+    return F.broadcast(
+        prepare_dimension_lookup(
+            dimension,
+            natural_key,
+            surrogate_key,
+            lookup_name,
+        ).select(
+            F.col(natural_key).alias(f"_{lookup_name}_natural_key"),
+            F.col(surrogate_key).cast("long").alias(f"_{lookup_name}_surrogate_key"),
+        )
     )
 
 
@@ -172,12 +191,16 @@ def _order_customer_context(orders: DataFrame, customers: DataFrame) -> DataFram
     - Bảng customers ánh xạ `customer_id` sang `customer_unique_id` (mã định danh thực của khách hàng).
     Hàm này tạo bảng tra cứu gọn: order_id -> customer_unique_id để Fact dễ dàng liên kết sang dim_customer.
     """
-    customer_relation = customers.select(
-        F.trim(F.col("customer_id").cast("string")).alias("_customer_id"),
-        F.trim(F.col("customer_unique_id").cast("string")).alias(
-            "customer_unique_id"
-        ),
-    ).distinct()
+    # Bọc broadcast: bảng ánh xạ này chỉ gồm 2 cột mã định danh (~99.000 dòng, vài MB),
+    # trong khi phía orders là bảng lớn — đúng hình mẫu kinh điển của Broadcast Hash Join.
+    customer_relation = F.broadcast(
+        customers.select(
+            F.trim(F.col("customer_id").cast("string")).alias("_customer_id"),
+            F.trim(F.col("customer_unique_id").cast("string")).alias(
+                "customer_unique_id"
+            ),
+        ).distinct()
+    )
     return (
         orders.select(
             F.trim(F.col("order_id").cast("string")).alias("order_id"),
@@ -249,14 +272,19 @@ def _with_member_key(
 
 def _date_lookup(dim_date: DataFrame) -> DataFrame:
     """Tạo bảng tra cứu ngày: full_date ('yyyy-MM-dd') -> date_key (YYYYMMDD)."""
-    return prepare_dimension_lookup(
-        dim_date,
-        "full_date",
-        "date_key",
-        "date",
-    ).select(
-        F.col("full_date").alias("_date_natural_key"),
-        F.col("date_key").cast("int").alias("_date_surrogate_key"),
+    # Bọc broadcast: dim_date chỉ có vài nghìn dòng (1 dòng/ngày) nhưng được JOIN tới 5 lần
+    # cho 5 vai trò ngày khác nhau (Role-Playing Dimension). Nếu không broadcast, mỗi lần JOIN
+    # là một lần shuffle toàn bộ bảng Fact — tức 5 lần shuffle thừa trong cùng một job.
+    return F.broadcast(
+        prepare_dimension_lookup(
+            dim_date,
+            "full_date",
+            "date_key",
+            "date",
+        ).select(
+            F.col("full_date").alias("_date_natural_key"),
+            F.col("date_key").cast("int").alias("_date_surrogate_key"),
+        )
     )
 
 

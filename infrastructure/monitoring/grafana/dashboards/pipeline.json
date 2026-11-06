@@ -1,23 +1,366 @@
 {
-  "annotations": {"list": []},
+  "annotations": {
+    "list": []
+  },
   "editable": false,
   "graphTooltip": 1,
   "panels": [
-    {"id": 1, "title": "Trạng thái pipeline gần nhất", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_run_status", "legendFormat": "{{job_name}} {{layer}} {{status}}"}], "gridPos": {"h": 7, "w": 8, "x": 0, "y": 0}},
-    {"id": 2, "title": "Thời gian chạy pipeline", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_duration_seconds", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 8, "y": 0}},
-    {"id": 3, "title": "Số dòng đầu vào", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_input_rows", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 16, "y": 0}},
-    {"id": 4, "title": "Số dòng đầu ra", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_output_rows", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 0, "y": 7}},
-    {"id": 5, "title": "Số dòng bị loại", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_rejected_rows", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 8, "y": 7}},
-    {"id": 6, "title": "Tỷ lệ dòng bị loại", "type": "timeseries", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "olist_pipeline_rejected_ratio", "legendFormat": "{{job_name}} {{layer}}"}], "gridPos": {"h": 7, "w": 8, "x": 16, "y": 7}},
-    {"id": 7, "title": "Lần chạy pipeline thành công gần nhất", "type": "stat", "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"refId": "A", "expr": "time() - olist_pipeline_last_success_timestamp_seconds", "legendFormat": "{{job_name}} {{layer}} độ trễ"}], "gridPos": {"h": 7, "w": 24, "x": 0, "y": 14}}
+    {
+      "id": 1,
+      "title": "Trạng thái pipeline gần nhất",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_run_status",
+          "legendFormat": "{{job_name}} {{layer}} {{status}}"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Xu hướng Thời gian Chạy Pipeline (phát hiện suy giảm hiệu năng)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_duration_seconds",
+          "legendFormat": "{{job_name}} {{layer}}"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "description": "Thời gian hoàn thành lần chạy gần nhất của từng tầng. Đường đi lên đều đặn là dấu hiệu suy giảm hiệu năng (performance degradation) khi khối lượng dữ liệu phình to theo thời gian.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 1,
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 8,
+            "showPoints": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Số dòng đầu vào",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_input_rows",
+          "legendFormat": "{{job_name}} {{layer}}"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Số dòng đầu ra",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_output_rows",
+          "legendFormat": "{{job_name}} {{layer}}"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "id": 5,
+      "title": "Số dòng bị loại",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_rejected_rows",
+          "legendFormat": "{{job_name}} {{layer}}"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 7
+      }
+    },
+    {
+      "id": 6,
+      "title": "Xu hướng Tỷ lệ Cách Ly theo thời gian (%)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_rejected_ratio * 100",
+          "legendFormat": "{{job_name}} {{layer}}"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 7
+      },
+      "description": "Diễn biến tỷ lệ cách ly theo thời gian. Dùng để phát hiện sớm hiện tượng chất lượng dữ liệu nguồn xuống cấp dần, trước khi tỷ lệ kịp vượt ngưỡng đỏ 5%.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "title": "Lần chạy pipeline thành công gần nhất",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "time() - olist_pipeline_last_success_timestamp_seconds",
+          "legendFormat": "{{job_name}} {{layer}} độ trễ"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "id": 8,
+      "title": "Tỷ lệ Dữ liệu Cách Ly (Quarantine Rate %)",
+      "description": "Phần trăm bản ghi bị bóc tách sang lakehouse.quarantine.* trên tổng số bản ghi nạp vào, theo lần chạy gần nhất của từng tầng. Ngưỡng: xanh < 2%, vàng 2-5%, ĐỎ > 5%. Mốc tham chiếu: dữ liệu Olist gốc tự nó đã có sẵn ~0,2% bản ghi vi phạm logic thời gian.",
+      "type": "gauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_rejected_ratio * 100",
+          "legendFormat": "{{job_name}} / {{layer}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 10,
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "id": 9,
+      "title": "Số bản ghi đang nằm trong vùng Cách Ly (tuyệt đối)",
+      "description": "Số bản ghi tuyệt đối bị đưa vào lakehouse.quarantine.* ở lần chạy gần nhất. Xem kèm panel tỷ lệ %: tỷ lệ nhỏ trên một lô khổng lồ vẫn có thể là rất nhiều bản ghi lỗi.",
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "olist_pipeline_rejected_rows",
+          "legendFormat": "{{job_name}} / {{layer}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 5000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 14
+      }
+    }
   ],
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["olist", "pipeline"],
-  "templating": {"list": []},
-  "time": {"from": "now-24h", "to": "now"},
+  "tags": [
+    "olist",
+    "pipeline"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "timezone": "browser",
   "title": "Vận hành pipeline Olist",
   "uid": "olist-pipeline",
-  "version": 1
+  "version": 2
 }

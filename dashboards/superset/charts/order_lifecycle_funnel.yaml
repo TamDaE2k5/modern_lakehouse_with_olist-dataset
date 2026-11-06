@@ -1,0 +1,33 @@
+{
+  "slice_name": "Phễu chuyển đổi vòng đời đơn hàng",
+  "description": "Phễu chuyển đổi: Đặt hàng → Duyệt thanh toán → Bàn giao vận chuyển → Giao thành công → Khách đánh giá. LƯU Ý NGHIỆP VỤ: giai đoạn 'Khách đã đánh giá' có thể cao hơn 'Giao hàng thành công', vì trong dữ liệu Olist thật khách vẫn đánh giá cả những đơn bị hủy hoặc không giao được — đây là đặc tính thật của dữ liệu, không phải lỗi tính toán.",
+  "certified_by": null,
+  "certification_details": null,
+  "viz_type": "funnel",
+  "params": {
+    "viz_type": "funnel",
+    "datasource": "0__table",
+    "slice_id": null,
+    "groupby": [
+      "funnel_stage"
+    ],
+    "metric": "order_count",
+    "row_limit": 10,
+    "adhoc_filters": [],
+    "sort_by_metric": false,
+    "color_scheme": "supersetColors",
+    "label_type": "key_value_percent",
+    "number_format": ",d",
+    "show_labels": true,
+    "show_legend": true,
+    "tooltip_label_type": "key_value_percent",
+    "time_range": "No filter",
+    "orient": "vertical",
+    "gap": 0
+  },
+  "query_context": "{\"datasource\":{\"id\":null,\"type\":\"table\"},\"force\":false,\"queries\":[{\"filters\":[],\"extras\":{\"having\":\"\",\"where\":\"\"},\"applied_time_extras\":{},\"columns\":[\"funnel_stage\"],\"metrics\":[\"order_count\"],\"orderby\":[],\"annotation_layers\":[],\"row_limit\":10,\"series_limit\":0,\"order_desc\":true,\"url_params\":{},\"custom_params\":{},\"custom_form_data\":{},\"time_range\":\"No filter\"}],\"form_data\":{\"viz_type\":\"funnel\",\"datasource\":\"0__table\",\"slice_id\":null,\"groupby\":[\"funnel_stage\"],\"metric\":\"order_count\",\"row_limit\":10,\"adhoc_filters\":[],\"sort_by_metric\":false,\"color_scheme\":\"supersetColors\",\"label_type\":\"key_value_percent\",\"number_format\":\",d\",\"show_labels\":true,\"show_legend\":true,\"tooltip_label_type\":\"key_value_percent\",\"time_range\":\"No filter\",\"orient\":\"vertical\",\"gap\":0},\"result_format\":\"json\",\"result_type\":\"full\"}",
+  "cache_timeout": null,
+  "uuid": "30000000-0000-4000-8000-000000000014",
+  "version": "1.0.0",
+  "dataset_uuid": "20000000-0000-4000-8000-000000000008"
+}

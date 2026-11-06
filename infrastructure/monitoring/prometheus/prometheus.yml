@@ -67,3 +67,15 @@ scrape_configs:
     static_configs:
       - targets: ["http://superset:8088/health"]
     relabel_configs: *blackbox_relabel
+
+  # Giám sát chính kênh cảnh báo. Vì sao cần? Nếu MailHog chết, email báo sự cố sẽ biến mất
+  # trong im lặng — module `email_alert.py` cố ý nuốt mọi lỗi gửi thư để không làm sập pipeline.
+  # Nghĩa là nếu không giám sát riêng, hệ thống sẽ mất khả năng báo động mà KHÔNG AI BIẾT.
+  # Một kênh cảnh báo hỏng thầm lặng còn nguy hiểm hơn không có kênh cảnh báo nào.
+  - job_name: mailhog-health
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://mailhog:8025/api/v2/messages?limit=1"]
+    relabel_configs: *blackbox_relabel
