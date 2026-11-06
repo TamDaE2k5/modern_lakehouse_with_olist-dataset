@@ -17,19 +17,21 @@ Tài liệu này cung cấp các quy trình chuẩn (SOP), kịch bản ứng ph
 | **Spark Worker UI**   | `8085` | `127.0.0.1:8085` | Theo dõi trạng thái Executor, Thread pool và bộ nhớ Worker |
 | **Prometheus Server** | `9090` | `127.0.0.1:9090` | Thu thập metrics, đánh giá Alert Rules và Service Discovery |
 | **Grafana Server**    | `3000` | `127.0.0.1:3000` | Bảng điều khiển giám sát tập trung hạ tầng, pipeline, chất lượng |
+| **MailHog (SMTP giả)**| `8025` | `127.0.0.1:8025` | Hộp thư nhận email cảnh báo sự cố do Airflow và cổng chất lượng gửi ra |
 
 *Giao tiếp nội bộ (Không lộ ra host):*
 * `5432`: PostgreSQL (Catalog cho Iceberg, DB cho Airflow và Superset).
 * `7077`: Spark Master RPC (Giao tiếp giữa Worker / Driver với Master).
 * `9101`: Pipeline Metrics Exporter (Phơi bày metrics nghiệp vụ Lakehouse cho Prometheus).
 * `9115`: Blackbox Exporter (Thăm dò HTTP/TCP health check cho Prometheus).
+* `1025`: MailHog SMTP (nơi `infrastructure/alerts/email_alert.py` gửi email cảnh báo tới).
 
 ---
 
 ## 2. Quản lý Vòng đời Hệ thống (Lifecycle Management)
 
 ### 2.1. Khởi động Toàn bộ Hệ sinh thái
-Khởi động cụm 12 container theo thứ tự phụ thuộc xác định:
+Khởi động cụm 13 container theo thứ tự phụ thuộc xác định:
 ```bash
 docker compose --project-name olist-lakehouse \
   -f docker-compose.yml \
@@ -41,7 +43,7 @@ up -d
 ```
 
 ### 2.2. Kiểm tra Sức khỏe Cụm Container
-Kiểm tra đảm bảo 12 container dài hạn đều đạt trạng thái `healthy`:
+Kiểm tra đảm bảo 13 container dài hạn đều đạt trạng thái `healthy`:
 ```bash
 docker compose --project-name olist-lakehouse \
   -f docker-compose.yml \
@@ -79,6 +81,25 @@ down -v --remove-orphans
 
 ---
 
+### 2.5. Lối tắt bằng PowerShell (khuyến nghị trên Windows)
+
+Thay cho các lệnh `docker compose` dài 6 dòng ở trên, dùng bộ script trong `scripts/`:
+
+```powershell
+.\scripts\up.ps1                  # Bật cụm và CHỜ tới khi mọi healthcheck xanh, rồi in bảng cổng
+.\scripts\verify_stack.ps1        # Kiểm tra sức khỏe toàn diện trong ~60 giây (5 nhóm kiểm tra)
+.\scripts\logs.ps1 -Service airflow-scheduler -Tail 200
+.\scripts\down.ps1                # Dừng, BẢO TOÀN dữ liệu
+.\scripts\down.ps1 -RemoveVolumes # Dừng và XÓA SẠCH dữ liệu (bắt gõ chữ XOA để xác nhận)
+```
+
+> [!CAUTION]
+> File `bash.txt` ở thư mục gốc ghi lệnh `down -v --remove-orphans`. Cờ `-v` sẽ **xóa vĩnh viễn**
+> các volume `minio-data` và `postgres-data`, tức mất toàn bộ Lakehouse đã dựng. Khi chỉ muốn
+> giải phóng RAM, hãy dùng `down --remove-orphans` (KHÔNG có `-v`) hoặc `.\scripts\down.ps1`.
+
+---
+
 ## 3. Vận hành Điều phối & Kích hoạt Pipeline qua CLI
 
 ### 3.1. Kích hoạt Pipeline Hàng ngày (Daily Master Pipeline)
@@ -106,15 +127,33 @@ docker exec olist-lakehouse-airflow-scheduler-1 airflow tasks states-for-dag-run
 
 ## 4. Xử lý Sự Cố Thường Gặp (Troubleshooting Guide)
 
-### 4.1. Sự cố Lệch pha Run ID trong Task Bảo trì (`rewrite_data_files`)
-* **Hiện tượng:** Task `rewrite_data_files` thất bại với thông báo `ValueError: Run tiêu thụ của báo cáo dry run không khớp yêu cầu`.
-* **Nguyên nhân:** Khi chạy với `run_id="auto"`, task khảo sát (`maintenance_dry_run`) và task nén file biên dịch biểu thức Jinja template khác nhau.
-* **Xử lý:**
-  1. Đảm bảo file `rebuild/orchestration/dags/olist_maintenance.py` sử dụng biến dùng chung `run_base = "{% if params.run_id == 'auto' %}{{ ts_nodash }}{% else %}{{ params.run_id }}{% endif %}"`.
-  2. Clear task từ đầu để tạo lại báo cáo dry-run đồng bộ:
+### 4.1. Task Bảo trì `rewrite_data_files` thất bại
+* **Bối cảnh lịch sử:** Phiên bản cũ của `transformation/maintenance/job.py` (2.569 dòng) yêu cầu
+  task nén tệp phải đọc lại báo cáo dry-run đã được ký HMAC. Khi chạy với `run_id="auto"`, hai task
+  biên dịch biểu thức Jinja ở hai thời điểm khác nhau nên sinh ra hai đường dẫn báo cáo lệch nhau,
+  làm task thất bại với `ValueError: Run tiêu thụ của báo cáo dry run không khớp yêu cầu`.
+* **Hiện trạng:** Lỗi này **đã được loại bỏ tận gốc**. Module bảo trì đã viết lại còn 627 dòng,
+  bỏ hoàn toàn cơ chế HMAC, nonce và lease lock. Các task thay đổi dữ liệu **không còn đọc file
+  dry-run** nữa, nên không còn tồn tại khả năng lệch pha giữa các task.
+* **Nếu task vẫn thất bại, kiểm tra theo thứ tự sau:**
+  1. Bảng đích có nằm trong allowlist không (xem `ALLOWED_TARGETS` trong `maintenance/job.py`)?
+     Sai tên bảng sẽ báo `Đích bảo trì '<ns>.<table>' không nằm trong allowlist`.
+  2. `retention_hours` có >= 168 và `orphan_older_than_hours` có >= `retention_hours` không?
+  3. Đọc bản ghi lỗi đã được ghi lại trong bảng kiểm toán:
      ```bash
-     docker exec olist-lakehouse-airflow-scheduler-1 airflow tasks clear olist_maintenance -d -t validate_runtime_params -y
+     docker exec olist-lakehouse-trino-1 trino --execute "SELECT run_id, action, status, error_summary FROM lakehouse.control.maintenance_results WHERE status = 'FAILED' ORDER BY started_at DESC LIMIT 5;"
      ```
+
+### 4.1b. Nhận email cảnh báo sự cố
+Mỗi khi một task Airflow thất bại (sau khi đã dùng hết số lần thử lại) hoặc cổng chất lượng
+Great Expectations trả về mức `ERROR`, hệ thống tự động gửi email cho Quản trị viên.
+* Đọc thư đã nhận: mở `http://localhost:8025`, hoặc gọi API:
+  ```bash
+  curl -s "http://localhost:8025/api/v2/messages?limit=5"
+  ```
+* Tắt tạm tính năng (ví dụ khi chạy kiểm thử hàng loạt): đặt `ALERT_EMAIL_ENABLED=false` trong `.env`.
+* Chuyển sang SMTP thật: đổi `ALERT_SMTP_HOST`, `ALERT_SMTP_PORT`, `ALERT_SMTP_USER`,
+  `ALERT_SMTP_PASSWORD`, `ALERT_SMTP_STARTTLS=true` trong `.env` rồi khởi động lại Airflow.
 
 ### 4.2. Khắc phục Xung đột Tài nguyên Ghi (Concurrency & Resource Lock)
 * **Hiện tượng:** Spark Worker bị nghẽn (hanging) hoặc báo lỗi `AirflowTaskTimeout` do nhiều job Spark ghi đồng thời vào Iceberg catalog.
@@ -133,7 +172,7 @@ Nếu Apache Superset báo lỗi không tìm thấy bảng `vw_*`:
    ```
 2. Nạp lại 4 Semantic Views nếu cần:
    ```bash
-   docker exec -i olist-lakehouse-trino-1 trino --file /opt/lakehouse/sql/trino_semantic_views.sql
+   docker exec -i olist-lakehouse-trino-1 trino --file /opt/lakehouse/sql/trino/create_views.sql
    ```
 
 ---

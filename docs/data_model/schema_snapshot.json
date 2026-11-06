@@ -1,0 +1,5016 @@
+{
+  "generated_at_utc": "2026-11-05T22:49:41.407673+00:00",
+  "environment": {
+    "compose_project": "olist-lakehouse",
+    "catalog": "lakehouse",
+    "spark": "3.5.9",
+    "iceberg": "1.11.0",
+    "trino": "483"
+  },
+  "source": "Lược đồ Spark StructType và số dòng đọc trực tiếp từ hệ thống đang chạy, đối chiếu chéo với Trino information_schema",
+  "expected_table_count": 37,
+  "tables": [
+    {
+      "schema": "bronze",
+      "name": "customers",
+      "grain": "One source customer row",
+      "keys": [
+        "customer_id"
+      ],
+      "dependencies": [
+        "csv:olist_customers_dataset.csv"
+      ],
+      "source": "validated olist_customers_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "customer_id",
+            "customer_unique_id",
+            "customer_zip_code_prefix",
+            "customer_city",
+            "customer_state",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "customer_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "customer_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "customer_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_unique_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99441
+    },
+    {
+      "schema": "bronze",
+      "name": "geolocation",
+      "grain": "One source coordinate observation",
+      "keys": [
+        "geolocation_zip_code_prefix",
+        "geolocation_lat",
+        "geolocation_lng",
+        "geolocation_city",
+        "geolocation_state"
+      ],
+      "dependencies": [
+        "csv:olist_geolocation_dataset.csv"
+      ],
+      "source": "validated olist_geolocation_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "geolocation_zip_code_prefix",
+            "geolocation_lat",
+            "geolocation_lng",
+            "geolocation_city",
+            "geolocation_state",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "WARN"
+        }
+      ],
+      "columns": [
+        {
+          "name": "geolocation_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "geolocation_lat",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "geolocation_lng",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "geolocation_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "geolocation_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 1000163
+    },
+    {
+      "schema": "bronze",
+      "name": "order_items",
+      "grain": "One source order-line row",
+      "keys": [
+        "order_id",
+        "order_item_id"
+      ],
+      "dependencies": [
+        "csv:olist_order_items_dataset.csv"
+      ],
+      "source": "validated olist_order_items_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "order_id",
+            "order_item_id",
+            "product_id",
+            "seller_id",
+            "shipping_limit_date",
+            "price",
+            "freight_value",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "order_id",
+            "order_item_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "order_id",
+              "order_item_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_item_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "shipping_limit_date",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "price",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_value",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 112650
+    },
+    {
+      "schema": "bronze",
+      "name": "order_payments",
+      "grain": "One source payment row",
+      "keys": [
+        "order_id",
+        "payment_sequential"
+      ],
+      "dependencies": [
+        "csv:olist_order_payments_dataset.csv"
+      ],
+      "source": "validated olist_order_payments_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "order_id",
+            "payment_sequential",
+            "payment_type",
+            "payment_installments",
+            "payment_value",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "order_id",
+            "payment_sequential"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "order_id",
+              "payment_sequential"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_sequential",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_type",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_installments",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_value",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 103886
+    },
+    {
+      "schema": "bronze",
+      "name": "order_reviews",
+      "grain": "One source review-order row",
+      "keys": [
+        "review_id",
+        "order_id"
+      ],
+      "dependencies": [
+        "csv:olist_order_reviews_dataset.csv"
+      ],
+      "source": "validated olist_order_reviews_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "review_id",
+            "order_id",
+            "review_score",
+            "review_comment_title",
+            "review_comment_message",
+            "review_creation_date",
+            "review_answer_timestamp",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "review_id",
+            "order_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "review_id",
+              "order_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "review_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_score",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_comment_title",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_comment_message",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_creation_date",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_answer_timestamp",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99224
+    },
+    {
+      "schema": "bronze",
+      "name": "orders",
+      "grain": "One source order row",
+      "keys": [
+        "order_id"
+      ],
+      "dependencies": [
+        "csv:olist_orders_dataset.csv"
+      ],
+      "source": "validated olist_orders_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "order_id",
+            "customer_id",
+            "order_status",
+            "order_purchase_timestamp",
+            "order_approved_at",
+            "order_delivered_carrier_date",
+            "order_delivered_customer_date",
+            "order_estimated_delivery_date",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "order_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "order_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_status",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_approved_at",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_delivered_carrier_date",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_delivered_customer_date",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_estimated_delivery_date",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99441
+    },
+    {
+      "schema": "bronze",
+      "name": "product_category_translation",
+      "grain": "One category translation row",
+      "keys": [
+        "product_category_name"
+      ],
+      "dependencies": [
+        "csv:product_category_name_translation.csv"
+      ],
+      "source": "validated product_category_name_translation.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "product_category_name",
+            "product_category_name_english",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "product_category_name"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "product_category_name"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "product_category_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category_name_english",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 71
+    },
+    {
+      "schema": "bronze",
+      "name": "products",
+      "grain": "One source product row",
+      "keys": [
+        "product_id"
+      ],
+      "dependencies": [
+        "csv:olist_products_dataset.csv"
+      ],
+      "source": "validated olist_products_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "product_id",
+            "product_category_name",
+            "product_name_lenght",
+            "product_description_lenght",
+            "product_photos_qty",
+            "product_weight_g",
+            "product_length_cm",
+            "product_height_cm",
+            "product_width_cm",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "product_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "product_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "product_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_name_lenght",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_description_lenght",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_photos_qty",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_weight_g",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_length_cm",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_height_cm",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_width_cm",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 32951
+    },
+    {
+      "schema": "bronze",
+      "name": "sellers",
+      "grain": "One source seller row",
+      "keys": [
+        "seller_id"
+      ],
+      "dependencies": [
+        "csv:olist_sellers_dataset.csv"
+      ],
+      "source": "validated olist_sellers_dataset.csv plus Bronze ingestion metadata",
+      "partition": [
+        "day(_ingestion_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "row_count_positive",
+          "columns": [],
+          "config": {
+            "rule_type": "row_count"
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "schema_matches_registry",
+          "columns": [
+            "seller_id",
+            "seller_zip_code_prefix",
+            "seller_city",
+            "seller_state",
+            "_ingestion_timestamp",
+            "_ingestion_date",
+            "_batch_id",
+            "_source_file"
+          ],
+          "config": {
+            "rule_type": "schema"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "_batch_id",
+            "seller_id"
+          ],
+          "config": {
+            "column_list": [
+              "_batch_id",
+              "seller_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "seller_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 3095
+    },
+    {
+      "schema": "control",
+      "name": "ingestion_batches",
+      "grain": "one row per pipeline run, batch, and source file",
+      "keys": [
+        "run_id",
+        "batch_id",
+        "source_file"
+      ],
+      "dependencies": [
+        "bronze.*"
+      ],
+      "source": "durable pipeline audit state transitions",
+      "partition": [],
+      "quality": [
+        {
+          "name": "declared_key_unique",
+          "columns": [
+            "run_id",
+            "batch_id",
+            "source_file"
+          ],
+          "config": {
+            "unique": true
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "terminal_status_domain",
+          "columns": [
+            "status"
+          ],
+          "config": {
+            "allowed": [
+              "STARTED",
+              "SUCCESS",
+              "FAILED"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "non_negative_counts",
+          "columns": [
+            "source_row_count",
+            "accepted_count",
+            "rejected_count"
+          ],
+          "config": {
+            "minimum": 0
+          },
+          "threshold": {
+            "min_value": 0
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "duration_matches_timestamps",
+          "columns": [
+            "started_at",
+            "completed_at",
+            "duration_ms"
+          ],
+          "config": {
+            "unit": "milliseconds"
+          },
+          "threshold": {
+            "difference_ms": 1
+          },
+          "severity": "WARN"
+        },
+        {
+          "name": "structtype_field_count",
+          "columns": [
+            "run_id",
+            "batch_id",
+            "source_file",
+            "checksum",
+            "source_row_count",
+            "source_row_hash",
+            "target_committed",
+            "accepted_count",
+            "rejected_count",
+            "status",
+            "started_at",
+            "completed_at",
+            "duration_ms",
+            "error_summary"
+          ],
+          "config": {
+            "expected_count": 14
+          },
+          "threshold": {
+            "expected": 14
+          },
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "run_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "batch_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "source_file",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "checksum",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "source_row_count",
+          "spark_type": "bigint",
+          "spark_nullable": false,
+          "trino_type": "bigint",
+          "trino_nullable": false
+        },
+        {
+          "name": "source_row_hash",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "target_committed",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        },
+        {
+          "name": "accepted_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "rejected_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "status",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "started_at",
+          "spark_type": "timestamp",
+          "spark_nullable": false,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": false
+        },
+        {
+          "name": "completed_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "duration_ms",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "error_summary",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99
+    },
+    {
+      "schema": "control",
+      "name": "pipeline_runs",
+      "grain": "one row per pipeline run attempt",
+      "keys": [
+        "run_id"
+      ],
+      "dependencies": [
+        "bronze.*",
+        "silver.*",
+        "gold.*",
+        "quality.quality_results"
+      ],
+      "source": "durable pipeline audit state transitions",
+      "partition": [],
+      "quality": [
+        {
+          "name": "declared_key_unique",
+          "columns": [
+            "run_id"
+          ],
+          "config": {
+            "unique": true
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "terminal_status_domain",
+          "columns": [
+            "status"
+          ],
+          "config": {
+            "allowed": [
+              "STARTED",
+              "SUCCESS",
+              "FAILED"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "non_negative_counts",
+          "columns": [
+            "input_count",
+            "output_count",
+            "rejected_count"
+          ],
+          "config": {
+            "minimum": 0
+          },
+          "threshold": {
+            "min_value": 0
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "duration_matches_timestamps",
+          "columns": [
+            "started_at",
+            "completed_at",
+            "duration_ms"
+          ],
+          "config": {
+            "unit": "milliseconds"
+          },
+          "threshold": {
+            "difference_ms": 1
+          },
+          "severity": "WARN"
+        },
+        {
+          "name": "structtype_field_count",
+          "columns": [
+            "run_id",
+            "logical_run_id",
+            "attempt_id",
+            "batch_id",
+            "job_name",
+            "layer",
+            "mode",
+            "input_count",
+            "output_count",
+            "rejected_count",
+            "status",
+            "started_at",
+            "completed_at",
+            "duration_ms",
+            "error_summary",
+            "original_status",
+            "original_error_summary",
+            "resolution_note",
+            "resolution_evidence_json",
+            "resolved_at"
+          ],
+          "config": {
+            "expected_count": 20
+          },
+          "threshold": {
+            "expected": 20
+          },
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "run_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "logical_run_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "attempt_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "batch_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "job_name",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "layer",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "mode",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "input_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "output_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "rejected_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "status",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "started_at",
+          "spark_type": "timestamp",
+          "spark_nullable": false,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": false
+        },
+        {
+          "name": "completed_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "duration_ms",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "error_summary",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "original_status",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "original_error_summary",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "resolution_note",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "resolution_evidence_json",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "resolved_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 136
+    },
+    {
+      "schema": "control",
+      "name": "transformation_targets",
+      "grain": "one row per pipeline run and transformation target",
+      "keys": [
+        "run_id",
+        "target_name"
+      ],
+      "dependencies": [
+        "silver.*",
+        "gold.*"
+      ],
+      "source": "durable pipeline audit state transitions",
+      "partition": [],
+      "quality": [
+        {
+          "name": "declared_key_unique",
+          "columns": [
+            "run_id",
+            "target_name"
+          ],
+          "config": {
+            "unique": true
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "terminal_status_domain",
+          "columns": [
+            "status"
+          ],
+          "config": {
+            "allowed": [
+              "STARTED",
+              "SUCCESS",
+              "FAILED"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "non_negative_counts",
+          "columns": [
+            "input_count",
+            "accepted_count",
+            "rejected_count"
+          ],
+          "config": {
+            "minimum": 0
+          },
+          "threshold": {
+            "min_value": 0
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "duration_matches_timestamps",
+          "columns": [
+            "started_at",
+            "completed_at",
+            "duration_ms"
+          ],
+          "config": {
+            "unit": "milliseconds"
+          },
+          "threshold": {
+            "difference_ms": 1
+          },
+          "severity": "WARN"
+        },
+        {
+          "name": "structtype_field_count",
+          "columns": [
+            "run_id",
+            "batch_id",
+            "target_name",
+            "mode",
+            "input_count",
+            "accepted_count",
+            "rejected_count",
+            "accepted_committed",
+            "quarantine_committed",
+            "status",
+            "started_at",
+            "completed_at",
+            "duration_ms",
+            "error_summary"
+          ],
+          "config": {
+            "expected_count": 14
+          },
+          "threshold": {
+            "expected": 14
+          },
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "run_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "batch_id",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "target_name",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "mode",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "input_count",
+          "spark_type": "bigint",
+          "spark_nullable": false,
+          "trino_type": "bigint",
+          "trino_nullable": false
+        },
+        {
+          "name": "accepted_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "rejected_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "accepted_committed",
+          "spark_type": "boolean",
+          "spark_nullable": false,
+          "trino_type": "boolean",
+          "trino_nullable": false
+        },
+        {
+          "name": "quarantine_committed",
+          "spark_type": "boolean",
+          "spark_nullable": false,
+          "trino_type": "boolean",
+          "trino_nullable": false
+        },
+        {
+          "name": "status",
+          "spark_type": "string",
+          "spark_nullable": false,
+          "trino_type": "varchar",
+          "trino_nullable": false
+        },
+        {
+          "name": "started_at",
+          "spark_type": "timestamp",
+          "spark_nullable": false,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": false
+        },
+        {
+          "name": "completed_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "duration_ms",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "error_summary",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 242
+    },
+    {
+      "schema": "gold",
+      "name": "bridge_review_products",
+      "grain": "one review-order by distinct product",
+      "keys": [
+        "review_id",
+        "order_id",
+        "product_key"
+      ],
+      "dependencies": [
+        "silver.order_reviews",
+        "silver.order_items",
+        "gold.dim_product"
+      ],
+      "source": "silver.order_reviews, silver.order_items, gold.dim_product",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "review_id",
+            "order_id",
+            "product_key"
+          ],
+          "config": {
+            "column_list": [
+              "review_id",
+              "order_id",
+              "product_key"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "review_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 102230
+    },
+    {
+      "schema": "gold",
+      "name": "bridge_review_sellers",
+      "grain": "one review-order by distinct seller",
+      "keys": [
+        "review_id",
+        "order_id",
+        "seller_key"
+      ],
+      "dependencies": [
+        "silver.order_reviews",
+        "silver.order_items",
+        "gold.dim_seller"
+      ],
+      "source": "silver.order_reviews, silver.order_items, gold.dim_seller",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "review_id",
+            "order_id",
+            "seller_key"
+          ],
+          "config": {
+            "column_list": [
+              "review_id",
+              "order_id",
+              "seller_key"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "review_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99809
+    },
+    {
+      "schema": "gold",
+      "name": "dim_customer",
+      "grain": "one real customer",
+      "keys": [
+        "customer_key"
+      ],
+      "dependencies": [
+        "silver.customers",
+        "silver.orders",
+        "gold.dim_geography"
+      ],
+      "source": "silver.customers, silver.orders, gold.dim_geography",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "customer_key"
+          ],
+          "config": {
+            "column": "customer_key"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "customer_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_unique_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "representative_customer_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "geography_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "repeat_customer",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 96097
+    },
+    {
+      "schema": "gold",
+      "name": "dim_date",
+      "grain": "one calendar date",
+      "keys": [
+        "date_key"
+      ],
+      "dependencies": [
+        "silver.orders",
+        "silver.order_items",
+        "silver.order_payments",
+        "silver.order_reviews"
+      ],
+      "source": "silver.orders, silver.order_items, silver.order_payments, silver.order_reviews",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "date_key"
+          ],
+          "config": {
+            "column": "date_key"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "full_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "day_of_week",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "day_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "day_of_month",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "day_of_year",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "week_of_year",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "month",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "month_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "quarter",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "year",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "is_weekend",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 2047
+    },
+    {
+      "schema": "gold",
+      "name": "dim_geography",
+      "grain": "one ZIP prefix",
+      "keys": [
+        "geography_key"
+      ],
+      "dependencies": [
+        "silver.geography"
+      ],
+      "source": "silver.geography",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "geography_key"
+          ],
+          "config": {
+            "column": "geography_key"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "geography_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "region",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "latitude",
+          "spark_type": "decimal(10,7)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,7)",
+          "trino_nullable": true
+        },
+        {
+          "name": "longitude",
+          "spark_type": "decimal(10,7)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,7)",
+          "trino_nullable": true
+        },
+        {
+          "name": "source_observation_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 19011
+    },
+    {
+      "schema": "gold",
+      "name": "dim_product",
+      "grain": "one product",
+      "keys": [
+        "product_key"
+      ],
+      "dependencies": [
+        "silver.products"
+      ],
+      "source": "silver.products",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "product_key"
+          ],
+          "config": {
+            "column": "product_key"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "product_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category_name_english",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_name_length",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_description_length",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_photos_qty",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_weight_g",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_length_cm",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_height_cm",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_width_cm",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "volume_cm3",
+          "spark_type": "decimal(38,6)",
+          "spark_nullable": true,
+          "trino_type": "decimal(38,6)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 32952
+    },
+    {
+      "schema": "gold",
+      "name": "dim_seller",
+      "grain": "one seller",
+      "keys": [
+        "seller_key"
+      ],
+      "dependencies": [
+        "silver.sellers",
+        "gold.dim_geography"
+      ],
+      "source": "silver.sellers, gold.dim_geography",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "seller_key"
+          ],
+          "config": {
+            "column": "seller_key"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "seller_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "geography_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 3096
+    },
+    {
+      "schema": "gold",
+      "name": "fact_order_items",
+      "grain": "one line in an order",
+      "keys": [
+        "order_id",
+        "order_item_id"
+      ],
+      "dependencies": [
+        "silver.order_items",
+        "silver.orders",
+        "silver.customers",
+        "gold.dim_customer",
+        "gold.dim_product",
+        "gold.dim_seller",
+        "gold.dim_date"
+      ],
+      "source": "silver.order_items, silver.orders, silver.customers, gold.dim_customer, gold.dim_product, gold.dim_seller, gold.dim_date",
+      "partition": [
+        "year(order_date)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "order_id",
+            "order_item_id"
+          ],
+          "config": {
+            "column_list": [
+              "order_id",
+              "order_item_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_item_id",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "shipping_limit_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "shipping_limit_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "price",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_value",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 112650
+    },
+    {
+      "schema": "gold",
+      "name": "fact_orders",
+      "grain": "one order",
+      "keys": [
+        "order_id"
+      ],
+      "dependencies": [
+        "silver.orders",
+        "silver.customers",
+        "silver.order_items",
+        "silver.order_payments",
+        "silver.order_reviews",
+        "gold.dim_customer",
+        "gold.dim_date"
+      ],
+      "source": "silver.orders, silver.customers, silver.order_items, silver.order_payments, silver.order_reviews, gold.dim_customer, gold.dim_date",
+      "partition": [
+        "year(purchase_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "order_id"
+          ],
+          "config": {
+            "column": "order_id"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "purchase_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "approval_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "carrier_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "delivered_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "estimated_delivery_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "purchase_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_status",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "total_items",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_revenue",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_total",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_total",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "delivery_duration_days",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "carrier_delivery_duration_days",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "is_late_delivery",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        },
+        {
+          "name": "average_review_score",
+          "spark_type": "decimal(4,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(4,2)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99441
+    },
+    {
+      "schema": "gold",
+      "name": "fact_payments",
+      "grain": "one payment component",
+      "keys": [
+        "order_id",
+        "payment_sequential"
+      ],
+      "dependencies": [
+        "silver.order_payments",
+        "silver.orders",
+        "silver.customers",
+        "gold.dim_customer",
+        "gold.dim_date"
+      ],
+      "source": "silver.order_payments, silver.orders, silver.customers, gold.dim_customer, gold.dim_date",
+      "partition": [
+        "year(order_date)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "order_id",
+            "payment_sequential"
+          ],
+          "config": {
+            "column_list": [
+              "order_id",
+              "payment_sequential"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_sequential",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_type",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_installments",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_value",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 103886
+    },
+    {
+      "schema": "gold",
+      "name": "fact_reviews",
+      "grain": "one review-order relation",
+      "keys": [
+        "review_id",
+        "order_id"
+      ],
+      "dependencies": [
+        "silver.order_reviews",
+        "silver.orders",
+        "silver.customers",
+        "gold.dim_customer",
+        "gold.dim_date"
+      ],
+      "source": "silver.order_reviews, silver.orders, silver.customers, gold.dim_customer, gold.dim_date",
+      "partition": [
+        "year(review_date)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "review_id",
+            "order_id"
+          ],
+          "config": {
+            "column_list": [
+              "review_id",
+              "order_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "review_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "answer_date_key",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_answer_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_score",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_comment_title",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_comment_message",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "has_title",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        },
+        {
+          "name": "has_message",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99224
+    },
+    {
+      "schema": "gold",
+      "name": "mart_daily_revenue",
+      "grain": "one date by customer state by product category",
+      "keys": [
+        "revenue_date",
+        "customer_state",
+        "product_category"
+      ],
+      "dependencies": [
+        "gold.fact_order_items",
+        "gold.dim_customer",
+        "gold.dim_product"
+      ],
+      "source": "gold.fact_order_items, gold.dim_customer, gold.dim_product",
+      "partition": [
+        "year(revenue_date)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "revenue_date",
+            "customer_state",
+            "product_category"
+          ],
+          "config": {
+            "column_list": [
+              "revenue_date",
+              "customer_state",
+              "product_category"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "revenue_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_revenue",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_total",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 56949
+    },
+    {
+      "schema": "gold",
+      "name": "mart_product_performance",
+      "grain": "one calendar month by product category",
+      "keys": [
+        "month_start",
+        "product_category"
+      ],
+      "dependencies": [
+        "gold.fact_order_items",
+        "gold.fact_reviews",
+        "gold.bridge_review_products",
+        "gold.dim_product"
+      ],
+      "source": "gold.fact_order_items, gold.fact_reviews, gold.bridge_review_products, gold.dim_product",
+      "partition": [
+        "year(month_start)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "month_start",
+            "product_category"
+          ],
+          "config": {
+            "column_list": [
+              "month_start",
+              "product_category"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "month_start",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_revenue",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_total",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "average_review_score",
+          "spark_type": "decimal(4,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(4,2)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 1274
+    },
+    {
+      "schema": "gold",
+      "name": "mart_seller_performance",
+      "grain": "one calendar month by seller",
+      "keys": [
+        "month_start",
+        "seller_key"
+      ],
+      "dependencies": [
+        "gold.fact_order_items",
+        "gold.fact_orders",
+        "gold.fact_reviews",
+        "gold.bridge_review_sellers",
+        "gold.dim_seller"
+      ],
+      "source": "gold.fact_order_items, gold.fact_orders, gold.fact_reviews, gold.bridge_review_sellers, gold.dim_seller",
+      "partition": [
+        "year(month_start)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "month_start",
+            "seller_key"
+          ],
+          "config": {
+            "column_list": [
+              "month_start",
+              "seller_key"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "month_start",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_key",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_revenue",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_total",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "item_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "average_delivery_days",
+          "spark_type": "decimal(10,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "on_time_delivery_rate",
+          "spark_type": "decimal(5,4)",
+          "spark_nullable": true,
+          "trino_type": "decimal(5,4)",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "average_review_score",
+          "spark_type": "decimal(4,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(4,2)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 16441
+    },
+    {
+      "schema": "quality",
+      "name": "quality_results",
+      "grain": "one quality result per run, layer, table, and rule",
+      "keys": [
+        "run_id",
+        "layer",
+        "table_name",
+        "rule_name"
+      ],
+      "dependencies": [
+        "data_quality/suites/bronze.json",
+        "data_quality/suites/silver.json",
+        "data_quality/suites/gold.json",
+        "bronze.*",
+        "silver.*",
+        "gold.*"
+      ],
+      "source": "Spark-native quality checks plus versioned Great Expectations suites",
+      "partition": [
+        "day(checked_at)"
+      ],
+      "quality": [
+        {
+          "name": "unique_quality_grain",
+          "columns": [
+            "run_id",
+            "layer",
+            "table_name",
+            "rule_name"
+          ],
+          "config": {
+            "unique": true
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "known_severity_status_domain",
+          "columns": [
+            "severity",
+            "status"
+          ],
+          "config": {
+            "severity": [
+              "INFO",
+              "WARN",
+              "ERROR"
+            ],
+            "status": [
+              "PASS",
+              "INFO",
+              "WARN",
+              "ERROR"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "structtype_field_count",
+          "columns": [
+            "layer",
+            "table_name",
+            "rule_name",
+            "severity",
+            "observed_value",
+            "threshold",
+            "status",
+            "run_id",
+            "checked_at"
+          ],
+          "config": {
+            "expected_count": 9
+          },
+          "threshold": {
+            "expected": 9
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "zero_failed_error_rules",
+          "columns": [
+            "severity",
+            "status"
+          ],
+          "config": {
+            "filter": "severity=ERROR AND status<>PASS"
+          },
+          "threshold": {
+            "max_count": 0
+          },
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "layer",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "table_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "rule_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "severity",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "observed_value",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "threshold",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "status",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "run_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "checked_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 2052
+    },
+    {
+      "schema": "quarantine",
+      "name": "geography",
+      "grain": "one rejected one Brazilian ZIP prefix",
+      "keys": [
+        "_batch_id",
+        "zip_code_prefix"
+      ],
+      "dependencies": [
+        "bronze.geolocation"
+      ],
+      "source": "rejected output of silver.geography",
+      "partition": [],
+      "quality": [
+        {
+          "name": "nonempty_error_codes",
+          "columns": [
+            "_error_codes"
+          ],
+          "config": {
+            "allow_empty": false
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "accepted_rejected_count_reconciliation",
+          "columns": [],
+          "config": {
+            "scope": "silver.geography"
+          },
+          "threshold": {
+            "difference": 0
+          },
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "latitude",
+          "spark_type": "decimal(10,7)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,7)",
+          "trino_nullable": true
+        },
+        {
+          "name": "longitude",
+          "spark_type": "decimal(10,7)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,7)",
+          "trino_nullable": true
+        },
+        {
+          "name": "city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_error_codes",
+          "spark_type": "array<string>",
+          "spark_nullable": true,
+          "trino_type": "array(varchar)",
+          "trino_nullable": true
+        },
+        {
+          "name": "_rejected_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 42
+    },
+    {
+      "schema": "quarantine",
+      "name": "orders",
+      "grain": "one rejected one order",
+      "keys": [
+        "_batch_id",
+        "order_id"
+      ],
+      "dependencies": [
+        "bronze.orders"
+      ],
+      "source": "rejected output of silver.orders",
+      "partition": [],
+      "quality": [
+        {
+          "name": "nonempty_error_codes",
+          "columns": [
+            "_error_codes"
+          ],
+          "config": {
+            "allow_empty": false
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "accepted_rejected_count_reconciliation",
+          "columns": [],
+          "config": {
+            "scope": "silver.orders"
+          },
+          "threshold": {
+            "difference": 0
+          },
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_status",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_approved_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_delivered_carrier_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_delivered_customer_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_estimated_delivery_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "delivery_duration_days",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "carrier_delivery_duration_days",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "is_late_delivery",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        },
+        {
+          "name": "_error_codes",
+          "spark_type": "array<string>",
+          "spark_nullable": true,
+          "trino_type": "array(varchar)",
+          "trino_nullable": true
+        },
+        {
+          "name": "_rejected_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 197
+    },
+    {
+      "schema": "silver",
+      "name": "customers",
+      "grain": "one order-level customer identity",
+      "keys": [
+        "customer_id"
+      ],
+      "dependencies": [
+        "bronze.customers"
+      ],
+      "source": "bronze.customers",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "customer_id"
+          ],
+          "config": {
+            "column": "customer_id"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "customer_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_unique_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99441
+    },
+    {
+      "schema": "silver",
+      "name": "geography",
+      "grain": "one Brazilian ZIP prefix",
+      "keys": [
+        "zip_code_prefix"
+      ],
+      "dependencies": [
+        "bronze.geolocation"
+      ],
+      "source": "bronze.geolocation",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "zip_code_prefix"
+          ],
+          "config": {
+            "column": "zip_code_prefix"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "latitude",
+          "spark_type": "decimal(10,7)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,7)",
+          "trino_nullable": true
+        },
+        {
+          "name": "longitude",
+          "spark_type": "decimal(10,7)",
+          "spark_nullable": true,
+          "trino_type": "decimal(10,7)",
+          "trino_nullable": true
+        },
+        {
+          "name": "source_observation_count",
+          "spark_type": "bigint",
+          "spark_nullable": true,
+          "trino_type": "bigint",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 19010
+    },
+    {
+      "schema": "silver",
+      "name": "order_items",
+      "grain": "one line in an order",
+      "keys": [
+        "order_id",
+        "order_item_id"
+      ],
+      "dependencies": [
+        "bronze.order_items",
+        "bronze.orders"
+      ],
+      "source": "bronze.order_items, bronze.orders",
+      "partition": [
+        "year(order_purchase_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "order_id",
+            "order_item_id"
+          ],
+          "config": {
+            "column_list": [
+              "order_id",
+              "order_item_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_item_id",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "shipping_limit_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "price",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "freight_value",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 112650
+    },
+    {
+      "schema": "silver",
+      "name": "order_payments",
+      "grain": "one payment component of an order",
+      "keys": [
+        "order_id",
+        "payment_sequential"
+      ],
+      "dependencies": [
+        "bronze.order_payments",
+        "bronze.orders"
+      ],
+      "source": "bronze.order_payments, bronze.orders",
+      "partition": [
+        "year(order_purchase_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "order_id",
+            "payment_sequential"
+          ],
+          "config": {
+            "column_list": [
+              "order_id",
+              "payment_sequential"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_sequential",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_type",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_installments",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "payment_value",
+          "spark_type": "decimal(18,2)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,2)",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 103886
+    },
+    {
+      "schema": "silver",
+      "name": "order_reviews",
+      "grain": "one review linked to one order",
+      "keys": [
+        "review_id",
+        "order_id"
+      ],
+      "dependencies": [
+        "bronze.order_reviews"
+      ],
+      "source": "bronze.order_reviews",
+      "partition": [
+        "year(review_creation_date)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_between",
+          "columns": [
+            "review_score"
+          ],
+          "config": {
+            "column": "review_score",
+            "min_value": 1,
+            "max_value": 5
+          },
+          "threshold": {
+            "min_value": 1,
+            "max_value": 5
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_compound_columns_to_be_unique",
+          "columns": [
+            "review_id",
+            "order_id"
+          ],
+          "config": {
+            "column_list": [
+              "review_id",
+              "order_id"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "review_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_score",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_comment_title",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_comment_message",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_creation_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "review_answer_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "has_title",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        },
+        {
+          "name": "has_message",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99224
+    },
+    {
+      "schema": "silver",
+      "name": "orders",
+      "grain": "one order",
+      "keys": [
+        "order_id"
+      ],
+      "dependencies": [
+        "bronze.orders"
+      ],
+      "source": "bronze.orders",
+      "partition": [
+        "year(order_purchase_timestamp)"
+      ],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_in_set",
+          "columns": [
+            "order_status"
+          ],
+          "config": {
+            "column": "order_status",
+            "value_set": [
+              "approved",
+              "canceled",
+              "created",
+              "delivered",
+              "invoiced",
+              "processing",
+              "shipped",
+              "unavailable"
+            ]
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "order_id"
+          ],
+          "config": {
+            "column": "order_id"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "order_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "customer_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_status",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_purchase_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_approved_at",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_delivered_carrier_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_delivered_customer_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "order_estimated_delivery_date",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "delivery_duration_days",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "carrier_delivery_duration_days",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "is_late_delivery",
+          "spark_type": "boolean",
+          "spark_nullable": true,
+          "trino_type": "boolean",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 99244
+    },
+    {
+      "schema": "silver",
+      "name": "products",
+      "grain": "one product",
+      "keys": [
+        "product_id"
+      ],
+      "dependencies": [
+        "bronze.products",
+        "bronze.product_category_translation"
+      ],
+      "source": "bronze.products, bronze.product_category_translation",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "product_id"
+          ],
+          "config": {
+            "column": "product_id"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "product_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category_name",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_name_length",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_description_length",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_photos_qty",
+          "spark_type": "int",
+          "spark_nullable": true,
+          "trino_type": "integer",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_weight_g",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_length_cm",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_height_cm",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_width_cm",
+          "spark_type": "decimal(18,3)",
+          "spark_nullable": true,
+          "trino_type": "decimal(18,3)",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "product_category_name_english",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "volume_cm3",
+          "spark_type": "decimal(38,6)",
+          "spark_nullable": true,
+          "trino_type": "decimal(38,6)",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 32951
+    },
+    {
+      "schema": "silver",
+      "name": "sellers",
+      "grain": "one seller",
+      "keys": [
+        "seller_id"
+      ],
+      "dependencies": [
+        "bronze.sellers"
+      ],
+      "source": "bronze.sellers",
+      "partition": [],
+      "quality": [
+        {
+          "name": "gx_expect_table_row_count_to_be_between",
+          "columns": [],
+          "config": {
+            "min_value": 1
+          },
+          "threshold": {
+            "min_value": 1
+          },
+          "severity": "ERROR"
+        },
+        {
+          "name": "gx_expect_column_values_to_be_unique",
+          "columns": [
+            "seller_id"
+          ],
+          "config": {
+            "column": "seller_id"
+          },
+          "threshold": null,
+          "severity": "ERROR"
+        }
+      ],
+      "columns": [
+        {
+          "name": "seller_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_zip_code_prefix",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_city",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "seller_state",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_timestamp",
+          "spark_type": "timestamp",
+          "spark_nullable": true,
+          "trino_type": "timestamp(6) with time zone",
+          "trino_nullable": true
+        },
+        {
+          "name": "_ingestion_date",
+          "spark_type": "date",
+          "spark_nullable": true,
+          "trino_type": "date",
+          "trino_nullable": true
+        },
+        {
+          "name": "_batch_id",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        },
+        {
+          "name": "_source_file",
+          "spark_type": "string",
+          "spark_nullable": true,
+          "trino_type": "varchar",
+          "trino_nullable": true
+        }
+      ],
+      "row_count": 3095
+    }
+  ]
+}
