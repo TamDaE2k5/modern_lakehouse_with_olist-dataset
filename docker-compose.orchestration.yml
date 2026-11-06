@@ -25,12 +25,23 @@ x-airflow-common: &airflow-common
     S3_REGION: ${S3_REGION:-us-east-1}
     ICEBERG_WAREHOUSE: ${ICEBERG_WAREHOUSE:-s3://lakehouse/}
     SPARK_MASTER_URL: ${SPARK_MASTER_URL:-spark://spark-master:7077}
+    # Cau hinh canh bao su co qua email (xem infrastructure/alerts/email_alert.py)
+    ALERT_EMAIL_ENABLED: ${ALERT_EMAIL_ENABLED:-true}
+    ALERT_SMTP_HOST: ${ALERT_SMTP_HOST:-mailhog}
+    ALERT_SMTP_PORT: ${ALERT_SMTP_PORT:-1025}
+    ALERT_SMTP_USER: ${ALERT_SMTP_USER:-}
+    ALERT_SMTP_PASSWORD: ${ALERT_SMTP_PASSWORD:-}
+    ALERT_SMTP_STARTTLS: ${ALERT_SMTP_STARTTLS:-true}
+    ALERT_SMTP_SSL: ${ALERT_SMTP_SSL:-false}
+    ALERT_FROM_EMAIL: ${ALERT_FROM_EMAIL:-}
+    ALERT_ADMIN_EMAIL: ${ALERT_ADMIN_EMAIL:-}
   volumes: &airflow-volumes
     - airflow-logs:/opt/airflow/logs
     - ./orchestration/dags:/opt/airflow/dags:ro
     - ./transformation:/opt/lakehouse/transformation:ro
     - ./data_quality:/opt/lakehouse/data_quality:ro
     - ./ingestion:/opt/lakehouse/ingestion:ro
+    - ./infrastructure/alerts:/opt/lakehouse/infrastructure/alerts:ro
     - ${OLIST_RAW_DIR:-./data/raw}:/opt/lakehouse/data/raw:ro
   restart: unless-stopped
   networks:
@@ -73,12 +84,6 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: ["scheduler"]
-    environment:
-      <<: *airflow-environment
-      MAINTENANCE_APPROVAL_SECRET_FILE: /run/secrets/maintenance_approval_secret
-    secrets:
-      - source: maintenance_approval_secret
-        target: /run/secrets/maintenance_approval_secret
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -106,12 +111,10 @@ services:
       - tests/unit/orchestration/test_dag_imports.py
       - tests/unit/orchestration/test_dag_structure.py
       - tests/unit/orchestration/test_trigger_dagrun_behavior.py
-      - tests/unit/maintenance
       - -q
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD:?AIRFLOW_DB_PASSWORD is required}@postgres:5432/airflow
-      MAINTENANCE_APPROVAL_SECRET_FILE: /run/secrets/maintenance_approval_secret
       OLIST_AIRFLOW_DB_RACE_TESTS: "1"
       PYTHONPATH: /opt/lakehouse
     depends_on:
@@ -119,9 +122,6 @@ services:
         condition: service_healthy
     networks:
       - lakehouse-internal
-    secrets:
-      - source: maintenance_approval_secret
-        target: /run/secrets/maintenance_approval_secret
     profiles: ["test"]
     working_dir: /opt/lakehouse
     volumes:
@@ -133,14 +133,8 @@ services:
   airflow-fixtures:
     <<: *airflow-common
     command: ["python", "--version"]
-    environment:
-      <<: *airflow-environment
-      MAINTENANCE_APPROVAL_SECRET_FILE: /run/secrets/maintenance_approval_secret
     profiles: ["test"]
     restart: "no"
-    secrets:
-      - source: maintenance_approval_secret
-        target: /run/secrets/maintenance_approval_secret
     volumes:
       - airflow-logs:/opt/airflow/logs
       - ./orchestration:/opt/lakehouse/orchestration:ro
@@ -151,7 +145,3 @@ services:
 
 volumes:
   airflow-logs:
-
-secrets:
-  maintenance_approval_secret:
-    file: ./secrets/maintenance_approval_secret

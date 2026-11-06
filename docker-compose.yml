@@ -99,6 +99,7 @@ services:
       - spark-events:/opt/spark-events
       - ./transformation:/opt/lakehouse/transformation:ro
       - ./data_quality:/opt/lakehouse/data_quality:ro
+      - ./infrastructure/alerts:/opt/lakehouse/infrastructure/alerts:ro
     depends_on:
       minio-init:
         condition: service_completed_successfully
@@ -149,6 +150,7 @@ services:
       - spark-events:/opt/spark-events
       - ./transformation:/opt/lakehouse/transformation:ro
       - ./data_quality:/opt/lakehouse/data_quality:ro
+      - ./infrastructure/alerts:/opt/lakehouse/infrastructure/alerts:ro
     depends_on:
       spark-master:
         condition: service_healthy

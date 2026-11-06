@@ -349,9 +349,46 @@ def write_failure_event(context: Mapping[str, object], destination: Path) -> Non
 
 
 def failure_callback(context: Mapping[str, object]) -> None:
-    """Hàm callback được Airflow tự động kích hoạt khi một task gặp lỗi."""
+    """Hàm callback được Airflow tự động kích hoạt khi một task gặp lỗi.
+
+    Đầu vào : ``context`` do Airflow cung cấp (chứa dag, task, run_id, exception...).
+    Xử lý   : (1) ghi sự kiện có cấu trúc vào file NDJSON để truy vết nguội,
+              (2) bắn email cảnh báo tức thì cho Quản trị viên để xử lý nóng.
+    Đầu ra  : không trả về giá trị.
+
+    Vì sao đặt phần gửi email trong khối try/except riêng? Vì ``failure_callback`` là hàm
+    chạy khi hệ thống ĐÃ gặp sự cố. Nếu bản thân nó ném thêm ngoại lệ, Airflow sẽ nuốt mất
+    log gốc và ta sẽ không còn biết nguyên nhân thật sự của lỗi ban đầu là gì.
+    """
     destination = Path(os.environ.get("AIRFLOW_FAILURE_LOG", "/opt/airflow/logs/failures.ndjson"))
     write_failure_event(context, destination)
+
+    try:
+        from infrastructure.alerts.email_alert import send_alert_email
+
+        dag_id = _safe_event_value(getattr(context.get("dag"), "dag_id", None))
+        task_id = _safe_event_value(getattr(context.get("task"), "task_id", None))
+        run_id = _safe_event_value(context.get("run_id"))
+        try_number = int(getattr(context.get("ti"), "try_number", 0))
+        # Lấy 1.000 ký tự CUỐI chứ không phải đầu: với SparkSubmitOperator, phần đầu thông báo
+        # lỗi chỉ là dòng lệnh spark-submit dài dằng dặc, còn nguyên nhân gốc nằm ở cuối.
+        reason = str(context.get("exception") or "Không có thông tin ngoại lệ")[-1_000:]
+        send_alert_email(
+            subject=f"Task {task_id} trong DAG {dag_id} đã THẤT BẠI",
+            body_text=(
+                "Một task trong Olist Data Lakehouse vừa thất bại.\n\n"
+                f"  DAG        : {dag_id}\n"
+                f"  Task       : {task_id}\n"
+                f"  Run ID     : {run_id}\n"
+                f"  Lần thử    : {try_number}\n"
+                f"  Thời điểm  : {datetime.now(timezone.utc).isoformat()}\n\n"
+                f"Nguyên nhân:\n{reason}\n\n"
+                "Hãy mở Airflow UI tại http://localhost:8083 để xem log chi tiết.\n"
+            ),
+            severity="CRITICAL",
+        )
+    except Exception:  # noqa: BLE001 - tuyệt đối không để kênh cảnh báo che mất lỗi gốc
+        pass
 
 
 def dag_default_args() -> dict[str, object]:

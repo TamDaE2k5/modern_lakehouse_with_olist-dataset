@@ -1035,6 +1035,56 @@ def _retry_pipeline_terminalization(
     )
 
 
+def _alert_quality_gate_failure(
+    *,
+    run_id: str,
+    batch_id: str,
+    results: Sequence[QualityResult],
+) -> None:
+    """Gửi email cảnh báo khi cổng kiểm định chất lượng trả về mức ERROR.
+
+    Đầu vào : mã run, mã batch và toàn bộ kết quả kiểm định của lần chạy.
+    Xử lý   : lọc ra các bài kiểm tra có ``status == 'ERROR'``, tóm tắt tối đa 20 bài đầu
+              (tránh gửi email dài hàng nghìn dòng) rồi chuyển cho module gửi SMTP.
+    Đầu ra  : không trả về giá trị; mọi lỗi của kênh cảnh báo đều bị nuốt có chủ đích.
+
+    Vì sao giới hạn 20 dòng? Khi một bảng nguồn hỏng nặng, hàng trăm bài kiểm tra có thể
+    cùng đỏ một lúc. Email cảnh báo chỉ cần đủ thông tin để Quản trị viên biết "hỏng ở đâu,
+    bắt đầu từ bài nào"; chi tiết đầy đủ đã nằm sẵn trong bảng ``lakehouse.quality.quality_results``.
+    """
+    try:
+        from infrastructure.alerts.email_alert import send_alert_email
+
+        failed = [item for item in results if item.status == "ERROR"]
+        preview = "\n".join(
+            (
+                f"  - [{item.layer}.{item.table_name}] {item.rule_name}: "
+                f"quan sát={item.observed_value} / kỳ vọng={item.threshold}"
+            )[:300]
+            for item in failed[:20]
+        )
+        remaining = len(failed) - 20
+        if remaining > 0:
+            preview += f"\n  ... và {remaining} bài kiểm định lỗi khác."
+        send_alert_email(
+            subject=f"Cổng chất lượng CHẶN pipeline — {len(failed)} kiểm định mức ERROR",
+            body_text=(
+                "Great Expectations phát hiện vi phạm chất lượng dữ liệu mức ERROR.\n"
+                "Pipeline đã bị chặn lại để dữ liệu lỗi không chảy xuống tầng dưới.\n\n"
+                f"  Run ID        : {run_id}\n"
+                f"  Batch ID      : {batch_id}\n"
+                f"  Tổng kiểm định: {len(results)}\n"
+                f"  Số bài ERROR  : {len(failed)}\n\n"
+                f"Danh sách kiểm định vi phạm:\n{preview}\n\n"
+                "Truy vấn đầy đủ: SELECT * FROM lakehouse.quality.quality_results "
+                f"WHERE run_id = '{run_id}' AND status = 'ERROR';\n"
+            ),
+            severity="ERROR",
+        )
+    except Exception:  # noqa: BLE001 - kênh cảnh báo không được phép che mất lỗi chất lượng gốc
+        pass
+
+
 def run_quality_job(
     *,
     spark: SparkSession,
@@ -1163,6 +1213,10 @@ def run_quality_job(
         )
         gate_status = aggregate_status(results)
         audit_status = "FAILED" if gate_status == "ERROR" else "SUCCESS"
+        if gate_status == "ERROR":
+            # Cổng chất lượng chặn pipeline -> bắn email cảnh báo ngay cho Quản trị viên,
+            # kèm danh sách cụ thể các bài kiểm định đã vi phạm để xử lý không phải mò log.
+            _alert_quality_gate_failure(run_id=run_id, batch_id=batch_id, results=results)
         phase = "audit_finalization"
         audit_failure = _retry_pipeline_terminalization(
             spark=spark,

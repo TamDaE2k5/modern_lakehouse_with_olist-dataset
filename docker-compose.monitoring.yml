@@ -1,4 +1,25 @@
 services:
+  # Máy chủ SMTP giả lập dùng để nhận và hiển thị email cảnh báo của Lakehouse.
+  # Vì sao dùng MailHog thay vì trỏ thẳng vào Gmail? Vì (1) không phải đưa mật khẩu ứng dụng
+  # thật vào file .env, (2) mọi email gửi ra đều xem lại được ngay trên Web UI cổng 8025 —
+  # tiện làm bằng chứng nghiệm thu, và (3) chạy được cả khi máy không có kết nối Internet.
+  # Khi chuyển sang môi trường thật, chỉ cần đổi các biến ALERT_SMTP_* sang máy chủ thật.
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "127.0.0.1:${MAILHOG_UI_PORT:-8025}:8025"
+    expose:
+      - "1025"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:8025/api/v2/messages?limit=1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - lakehouse-internal
+
   minio:
     environment:
       MINIO_PROMETHEUS_AUTH_TYPE: public
