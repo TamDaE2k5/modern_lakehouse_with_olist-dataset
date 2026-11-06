@@ -6,7 +6,11 @@ Kiến trúc và Nguyên tắc Hoạt động:
    - Kiểm tra retention_hours (tối thiểu 168h = 7 ngày) và orphan_older_than_hours (tối thiểu 336h = 14 ngày).
 2. Kiểm tra trước không gây biến đổi (maintenance_dry_run):
    - Quét metadata snapshot, đếm số lượng data files và dung lượng byte thực tế.
-   - Ký số báo cáo thẩm định dry-run JSON bằng token HMAC SHA-256 qua secret bảo mật.
+   - Ghi ảnh chụp metadata ra báo cáo JSON thuần làm bằng chứng vận hành cho người đọc.
+     (Cơ chế ký HMAC + lease lock của bản cũ đã bị loại bỏ: việc điều tiết ghi đồng thời
+     do Airflow Pool `lakehouse_writes` và `max_active_runs=1` đảm nhiệm, còn tính nguyên tử
+     khi commit do chính Apache Iceberg lo. Chuỗi Jinja truyền token giữa các task chính là
+     nguyên nhân gây lỗi lệch pha làm treo task `rewrite_data_files` trước đây.)
 3. Nén và gộp tệp nhỏ (rewrite_data_files):
    - Thực thi thủ tục hệ thống `CALL system.rewrite_data_files(...)`.
    - Gộp các tệp Parquet phân mảnh nhỏ thành các tệp tiêu chuẩn ~128MB (target-file-size-bytes: 134,217,728).
@@ -78,7 +82,12 @@ params.update(
 
 
 def maintenance_arguments(*, action: str, run_suffix: str) -> list[str]:
-    """Tạo danh sách đối số dòng lệnh an toàn cho job Spark maintenance."""
+    """Tạo danh sách đối số dòng lệnh an toàn cho job Spark maintenance.
+
+    Đầu vào : tên hành động bảo trì và hậu tố định danh riêng của từng task.
+    Xử lý   : ghép các tham số chung (run_id/batch_id/mode) với tham số riêng của bảo trì.
+    Đầu ra  : list[str] truyền thẳng cho `spark-submit` qua SparkSubmitOperator.
+    """
     arguments = build_job_arguments(run_suffix=run_suffix, include_mode=True)
     run_base = "{% if params.run_id == 'auto' %}{{ ts_nodash }}{% else %}{{ params.run_id }}{% endif %}"
     arguments.extend(
@@ -87,18 +96,20 @@ def maintenance_arguments(*, action: str, run_suffix: str) -> list[str]:
             "{{ params.namespace }}",
             "--table",
             "{{ params.table }}",
-            "--approval-run-id",
-            run_base,
             "--action",
             action,
             "--retention-hours",
             "{{ params.retention_hours }}",
             "--orphan-older-than-hours",
             "{{ params.orphan_older_than_hours }}",
-            "--dry-run-report",
-            f"/opt/airflow/logs/maintenance/{run_base}/dry-run.json",
         ]
     )
+    # Chỉ task khảo sát dry-run mới cần xuất file báo cáo JSON; các task thay đổi dữ liệu
+    # không còn phải đọc lại file này nữa (bản cũ dùng nó làm "giấy phép" ký HMAC).
+    if action == "dry-run":
+        arguments.extend(
+            ["--dry-run-report", f"/opt/airflow/logs/maintenance/{run_base}/dry-run.json"]
+        )
     return arguments
 
 
@@ -116,7 +127,7 @@ with DAG(
     # 1. Thẩm định tham số runtime trước khi khởi động Spark
     validate_params = runtime_validation_task()
 
-    # 2. Bước khảo sát không phá hủy (Dry-Run): Lập kế hoạch và ký token HMAC
+    # 2. Bước khảo sát không phá hủy (Dry-Run): chụp ảnh metadata bảng trước khi tác động
     maintenance_dry_run = spark_submit_task(
         task_id="maintenance_dry_run",
         application="/opt/lakehouse/transformation/maintenance/job.py",
@@ -153,18 +164,15 @@ with DAG(
     remove_orphan_files = spark_submit_task(
         task_id="remove_orphan_files",
         application="/opt/lakehouse/transformation/maintenance/job.py",
-        application_args=(
-            maintenance_arguments(
-                action="remove-orphan-files",
-                run_suffix="maintenance-orphans",
-            )
-            + ["--confirm-orphan-cleanup"]
+        application_args=maintenance_arguments(
+            action="remove-orphan-files",
+            run_suffix="maintenance-orphans",
         ),
         write_pool_slots=8,
     )
 
     # Thiết lập chuỗi phụ thuộc tuyến tính nghiêm ngặt:
-    # Bắt buộc qua dry-run xác thực trước khi thực thi bất kỳ thao tác ghi/xóa nào
+    # Bắt buộc qua dry-run khảo sát trước khi thực thi bất kỳ thao tác ghi/xóa nào
     (
         validate_params
         >> maintenance_dry_run
