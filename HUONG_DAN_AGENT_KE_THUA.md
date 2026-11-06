@@ -16,8 +16,10 @@
   * **Phân tích & Phục vụ SQL:** Trino Query Engine (4 Semantic Views bảo mật).
   * **Báo cáo kinh doanh (BI):** Apache Superset (5 Dashboards).
   * **Kiểm định chất lượng:** Great Expectations (198 checks).
-  * **Giám sát thời gian thực:** Prometheus (9/9 targets UP) & Grafana (3 Dashboards).
-* **Trạng thái hiện tại:** Hệ thống đã được **Rebuild và Verify 100%**, toàn bộ 4 DAGs đều đã chạy thành công (`SUCCESS`), doanh thu đối soát khớp tuyệt đối từng cent: **`$16,008,872.12`** (không mất một đồng nào từ dữ liệu thô sang tầng Gold).
+  * **Giám sát thời gian thực:** Prometheus (10/10 targets UP) & Grafana (3 Dashboards, trong đó `olist-pipeline` có 9 panel).
+  * **Cảnh báo sự cố:** module SMTP + container MailHog (hộp thư tại `http://localhost:8025`).
+* **Trạng thái hiện tại:** Hệ thống đã được **Rebuild và Verify 100%**, toàn bộ 4 DAGs đều đã chạy thành công (`SUCCESS`). Ba tổng tiền ở tầng Gold khớp tuyệt đối từng cent với ba file CSV nguồn tương ứng: `sum(item_revenue)` = **$13,591,643.70**, `sum(freight_total)` = **$2,251,909.54**, `sum(payment_total)` = **$16,008,872.12**.
+  > ⚠️ **Lưu ý quan trọng:** ba con số này đến từ **ba file nguồn khác nhau** nên KHÔNG cộng ra nhau (`13,591,643.70 + 2,251,909.54 = 15,843,553.24 ≠ 16,008,872.12`). Khoản lệch $165,318.88 là đặc tính có thật của bộ dữ liệu Olist gốc (trả góp làm tròn, voucher, đơn không có dòng hàng), KHÔNG phải lỗi pipeline — kiểm chứng được ngay trên CSV thô. Xem giải thích đầy đủ ở mục 6 của `README.md`.
 * **Tình trạng máy chủ:** Hiện tại toàn bộ container đang được tạm dừng (`down`) để giải phóng RAM cho máy tính. Bạn có thể bật lại bất cứ lúc nào chỉ với 1 câu lệnh (xem mục 5).
 
 ---
@@ -51,32 +53,32 @@ Hệ thống tài liệu đã được chuẩn bị đầy đủ trong thư mụ
 
 ---
 
-## 4. Checklist 5 Tasks Cần Làm Ngay (Giai Đoạn 1)
+## 4. Checklist 5 Tasks Giai Đoạn 1 — ĐÃ HOÀN THÀNH 5/5
 
-Cậu hãy mở IDE và lần lượt thực hiện 5 task sau theo thứ tự:
+Cả 5 task dưới đây đã được thực hiện và nghiệm thu. Bằng chứng chi tiết kèm số liệu benchmark nằm trong [`docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md`](docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md).
 
-- [ ] **Task 1 (Tinh giản Maintenance):** Viết lại module [`transformation/maintenance/job.py`](transformation/maintenance/job.py) từ 2,580 dòng về khoảng **~200 dòng**, bỏ toàn bộ HMAC token và lease lock, gọi trực tiếp 3 thủ tục Iceberg: `rewrite_data_files` (nén 128MB), `expire_snapshots`, `remove_orphan_files`. Đảm bảo DAG `olist_maintenance` chạy thành công.
-- [ ] **Task 2 (Sinh 3 Dataset Test Tải & Tăng Dần):** Viết script Python đọc từ dữ liệu thật `data/raw/` để sinh:
+- [x] **Task 1 (Tinh giản Maintenance):** Viết lại module [`transformation/maintenance/job.py`](transformation/maintenance/job.py) từ 2,580 dòng về khoảng **~200 dòng**, bỏ toàn bộ HMAC token và lease lock, gọi trực tiếp 3 thủ tục Iceberg: `rewrite_data_files` (nén 128MB), `expire_snapshots`, `remove_orphan_files`. Đảm bảo DAG `olist_maintenance` chạy thành công.
+- [x] **Task 2 (Sinh 3 Dataset Test Tải & Tăng Dần):** Viết script Python đọc từ dữ liệu thật `data/raw/` để sinh:
   1. *Dataset 1 (Giờ thấp điểm):* 500 đơn hàng, test micro-batch và nạp tăng dần không bị trùng lặp.
   2. *Dataset 2 (Giờ săn sale Flash-Sale):* 30,000 - 50,000 đơn hàng dồn dập trong 2 giờ, test tải nặng xem Spark Worker có bị OOM không và Airflow pool có điều tiết tốt không.
   3. *Dataset 3 (Dồn tích Catch-up):* Toàn bộ 1 tháng đơn hàng có trạng thái cập nhật hỗn hợp, test cơ chế `MERGE INTO` (Upsert).
-- [ ] **Task 3 (Sinh 3 Dataset Test Chịu Lỗi - Chaos):** Viết script Python tiêm lỗi:
+- [x] **Task 3 (Sinh 3 Dataset Test Chịu Lỗi - Chaos):** Viết script Python tiêm lỗi:
   1. *Dataset 4 (Metadata bẩn):* Thêm cột lạ, ngày tháng sai định dạng, chuỗi text trong cột giá.
   2. *Dataset 5 (Vi phạm khóa & Quarantine):* Null `order_id`, khóa ngoại mồ côi, đơn giá âm. Đảm bảo toàn bộ bị bóc tách vào `lakehouse.quarantine.*`.
   3. *Dataset 6 (Bản ghi trùng lặp):* Cùng khóa chính nhưng khác trạng thái và timestamp. Đảm bảo Silver deduplicate chuẩn xác.
-- [ ] **Task 4 (Cảnh Báo Email SMTP):** Tạo module `infrastructure/alerts/email_alert.py` (< 60 dòng) dùng `smtplib`, kết nối vào `failure_callback` trong `orchestration/dags/common.py` để tự động gửi email cho Admin khi có task Airflow bị FAILED hoặc Great Expectations phát hiện kiểm định `ERROR`.
-- [ ] **Task 5 (Tối Ưu Spark & Dashboard):** Thêm gợi ý `broadcast()` cho các bảng chiều nhỏ trong `gold/job.py`; bật Spark Adaptive Query Execution (AQE); bổ sung biểu đồ phễu kinh doanh (Funnel) trên Superset và panel Quarantine Rate (%) trên Grafana.
+- [x] **Task 4 (Cảnh Báo Email SMTP):** Tạo module `infrastructure/alerts/email_alert.py` (< 60 dòng) dùng `smtplib`, kết nối vào `failure_callback` trong `orchestration/dags/common.py` để tự động gửi email cho Admin khi có task Airflow bị FAILED hoặc Great Expectations phát hiện kiểm định `ERROR`.
+- [x] **Task 5 (Tối Ưu Spark & Dashboard):** Thêm gợi ý `broadcast()` cho các bảng chiều nhỏ trong `gold/job.py`; bật Spark Adaptive Query Execution (AQE); bổ sung biểu đồ phễu kinh doanh (Funnel) trên Superset và panel Quarantine Rate (%) trên Grafana.
 
 ---
 
 ## 5. Cheatsheet Lệnh Vận Hành Nhanh (Dành Cho Kỹ Sư)
 
-### 5.1. Nạp Images & Bật/Tắt Hệ Thống (12 Containers)
+### 5.1. Nạp Images & Bật/Tắt Hệ Thống (13 Containers)
 ```bash
 # 1. Nạp sẵn toàn bộ Docker Images đã đóng gói (tránh mất thời gian build lại):
 docker load -i olist-lakehouse-images.tar
 
-# 2. Khởi động toàn bộ 12 container dịch vụ
+# 2. Khởi động toàn bộ 13 container dịch vụ
 docker compose --project-name olist-lakehouse \
   -f docker-compose.yml \
   -f docker-compose.query.yml \
@@ -103,6 +105,7 @@ down --remove-orphans
 * **Prometheus:** `http://localhost:9090` (Targets: `http://localhost:9090/targets`)
 * **Grafana:** `http://localhost:3000` (`admin` / `admin`)
 * **Spark Master UI:** `http://localhost:8084`
+* **MailHog (hộp thư cảnh báo):** `http://localhost:8025`
 
 ### 5.3. Kích Hoạt DAGs Bằng Lệnh Airflow CLI
 ```bash
@@ -119,8 +122,16 @@ docker exec olist-lakehouse-airflow-scheduler-1 airflow dags trigger olist_maint
 ### 5.4. Lệnh Trino Đối Soát Doanh Thu
 ```bash
 docker exec -i olist-lakehouse-trino-1 trino --execute \
-  "SELECT count(*) total_orders, sum(item_revenue) item_rev, sum(freight_value) freight, sum(payment_total) payment FROM lakehouse.gold.fact_orders;"
-# Kết quả kỳ vọng: 99441 | 13591643.70 | 2417228.42 | 16008872.12
+  "SELECT count(*) total_orders, sum(item_revenue) item_rev, sum(freight_total) freight, sum(payment_total) payment FROM lakehouse.gold.fact_orders;"
+# Kết quả kỳ vọng: 99441 | 13591643.70 | 2251909.54 | 16008872.12
+```
+> ⚠️ Cột trong `gold.fact_orders` tên là **`freight_total`**, KHÔNG phải `freight_value`.
+> Bản tài liệu trước ghi nhầm tên cột (gây lỗi `Column 'freight_value' cannot be resolved`)
+> và ghi nhầm giá trị cước là `2417228.42`. Giá trị đúng là **`2251909.54`**.
+
+Hoặc dùng script kiểm tra toàn diện (bao gồm cả đối soát doanh thu này):
+```powershell
+.\scripts\verify_stack.ps1
 ```
 
 ---

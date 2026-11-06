@@ -4,6 +4,35 @@
 
 ---
 
+> [!NOTE]
+> ## TRẠNG THÁI THỰC HIỆN — ĐÃ HOÀN THÀNH TOÀN BỘ
+>
+> Tài liệu này là **bản đặc tả yêu cầu** được viết trước khi bắt tay làm. Dưới đây là đối chiếu
+> giữa từng hạng mục đã đặc tả và kết quả thực tế, kèm nơi tìm bằng chứng:
+>
+> | # | Hạng mục đã đặc tả | Trạng thái | Bằng chứng |
+> |:-:|:---|:---:|:---|
+> | 1 | Kiểm thử xử lý tăng dần & mô phỏng CDC | ✅ | 3 bộ dữ liệu trong `data/synthetic/01..03`, số liệu đo trong `docs/reports/benchmarks/` |
+> | 2 | Kiểm tra nhất quán dữ liệu & cô lập snapshot | ✅ | Trino đọc trong lúc Spark ghi suốt các bài benchmark, không xảy ra đọc bẩn |
+> | 3 | Tối ưu hiệu năng Spark Job | ✅ | `F.broadcast()` tại 4 điểm tra cứu chiều; AQE đầy đủ trong `transformation/common/spark_session.py` |
+> | 4 | 6 bộ dữ liệu mẫu | ✅ | `scripts/generate_load_datasets.py` + `scripts/generate_chaos_datasets.py` |
+> | 5 | Cảnh báo sự cố qua Email SMTP | ✅ | `infrastructure/alerts/email_alert.py` + container MailHog, đã kiểm chứng gửi thật |
+> | 6 | Hoàn thiện Dashboards Superset & Grafana | ✅ | Biểu đồ phễu + bộ lọc đồng bộ; gauge Quarantine Rate đổi màu theo ngưỡng |
+> | 7 | Loại bỏ over-engineering trong `maintenance/job.py` | ✅ | 2.569 → 627 dòng (383 dòng code thực), DAG chạy 5/5 task SUCCESS |
+>
+> **Hai điểm thực tế khác với đặc tả ban đầu — và lý do:**
+> * **Mục 4.2 đề xuất SMTP Gmail.** Thực tế dùng container **MailHog** làm SMTP giả lập, để không
+>   phải đưa mật khẩu ứng dụng Gmail vào file `.env`, đồng thời có Web UI xem lại thư làm bằng chứng
+>   nghiệm thu. Chuyển sang Gmail thật chỉ cần đổi các biến `ALERT_SMTP_*`, không sửa một dòng code.
+> * **Mục 7 đề xuất rút về ~200 dòng.** Kết quả thực tế là **627 dòng tổng / 383 dòng code thực**.
+>   Phần chênh lệch là chú thích tiếng Việt chi tiết theo đúng yêu cầu của Tech Lead (118 dòng
+>   docstring + 41 dòng comment + 85 dòng trống), cộng với danh sách trắng 31 bảng được phép bảo trì
+>   viết tường minh — đây là ranh giới an toàn chống xóa nhầm dữ liệu, cố ý không rút gọn.
+>
+> Báo cáo nghiệm thu đầy đủ: [`docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md`](reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md)
+
+---
+
 ## 1. Danh Mục Các Vấn Đề Cần Hoàn Thiện Tiếp Theo
 
 Dựa trên quá trình kiểm định thực tế và các ghi chú trong [NHAT_KY_REBUILD_LAKEHOUSE.md](file:///run/media/tamdae/04C8A69DC8A68C8C/Users/LENOVO/Documents/TL_Kỳ_1_năm_4/Big_Data/rebuild/NHAT_KY_REBUILD_LAKEHOUSE.md#L1415-L1436), hệ thống đã đạt mức ổn định 100% về mặt chức năng và logic nghiệp vụ nhưng vẫn còn các không gian tối ưu hóa kỹ thuật quan trọng sau:
