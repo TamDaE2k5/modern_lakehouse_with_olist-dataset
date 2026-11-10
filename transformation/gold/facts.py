@@ -493,6 +493,9 @@ def build_fact_orders(
             F.col("is_late_delivery").cast("boolean"),
             F.col("average_review_score").cast(REVIEW_AVERAGE_TYPE),
         )
+        # V3 Optimization: Sắp xếp cục bộ theo trường phân vùng (purchase_timestamp) và khóa khách hàng
+        # trước khi ghi xuống Apache Iceberg để tối ưu hóa nén Parquet và gom cụm thống kê min/max
+        .sortWithinPartitions("purchase_timestamp", "customer_key")
     )
 
 

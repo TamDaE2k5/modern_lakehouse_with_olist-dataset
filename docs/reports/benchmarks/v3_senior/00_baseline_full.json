@@ -1,0 +1,204 @@
+{
+  "label": "00_baseline_full",
+  "dataset": "data/raw",
+  "dag_id": "olist_daily_pipeline",
+  "run_id": "bm-00-baseline-full-214418",
+  "batch_id": "bm-00-baseline-full",
+  "mode": "full",
+  "measured_at": "2026-11-10T14:50:19.315734+00:00",
+  "wall_clock_seconds": 335.4,
+  "dag_result": "SUCCESS",
+  "task_states": {
+    "bronze_ingestion_complete": "success",
+    "build_gold_closure": "success",
+    "ingest_bronze_layer": "success",
+    "lakehouse_pipeline_complete": "success",
+    "run_quality_checks": "success",
+    "silver_customers": "success",
+    "silver_geography": "success",
+    "silver_order_items": "success",
+    "silver_order_payments": "success",
+    "silver_order_reviews": "success",
+    "silver_orders": "success",
+    "silver_products": "success",
+    "silver_sellers": "success",
+    "silver_transformation_complete": "success",
+    "validate_runtime_params": "success"
+  },
+  "task_durations_seconds": {
+    "bronze_ingestion_complete": 0.0,
+    "build_gold_closure": 127.9,
+    "ingest_bronze_layer": 27.1,
+    "lakehouse_pipeline_complete": 0.0,
+    "run_quality_checks": 54.0,
+    "silver_customers": 35.9,
+    "silver_geography": 23.7,
+    "silver_order_items": 26.1,
+    "silver_order_payments": 27.5,
+    "silver_order_reviews": 26.2,
+    "silver_orders": 25.6,
+    "silver_products": 25.2,
+    "silver_sellers": 22.2,
+    "silver_transformation_complete": 0.0,
+    "validate_runtime_params": 0.1
+  },
+  "slowest_task": "build_gold_closure",
+  "tables_before": {
+    "bronze.orders": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "bronze.order_items": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "silver.orders": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "silver.order_items": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "quarantine.orders": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "quarantine.order_items": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "gold.fact_orders": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "gold.fact_order_items": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    }
+  },
+  "tables_after": {
+    "bronze.orders": {
+      "rows": 99441,
+      "files": 1,
+      "bytes": 6158839
+    },
+    "bronze.order_items": {
+      "rows": 112650,
+      "files": 1,
+      "bytes": 4029076
+    },
+    "silver.orders": {
+      "rows": 99244,
+      "files": 3,
+      "bytes": 6302188
+    },
+    "silver.order_items": {
+      "rows": 112650,
+      "files": 3,
+      "bytes": 4915478
+    },
+    "quarantine.orders": {
+      "rows": 197,
+      "files": 1,
+      "bytes": 19961
+    },
+    "quarantine.order_items": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "gold.fact_orders": {
+      "rows": 99441,
+      "files": 3,
+      "bytes": 3949998
+    },
+    "gold.fact_order_items": {
+      "rows": 112650,
+      "files": 3,
+      "bytes": 4189103
+    }
+  },
+  "tables_delta": {
+    "bronze.orders": {
+      "rows": 99441,
+      "files": 1,
+      "bytes": 6158839
+    },
+    "bronze.order_items": {
+      "rows": 112650,
+      "files": 1,
+      "bytes": 4029076
+    },
+    "silver.orders": {
+      "rows": 99244,
+      "files": 3,
+      "bytes": 6302188
+    },
+    "silver.order_items": {
+      "rows": 112650,
+      "files": 3,
+      "bytes": 4915478
+    },
+    "quarantine.orders": {
+      "rows": 197,
+      "files": 1,
+      "bytes": 19961
+    },
+    "quarantine.order_items": {
+      "rows": 0,
+      "files": 0,
+      "bytes": 0
+    },
+    "gold.fact_orders": {
+      "rows": 99441,
+      "files": 3,
+      "bytes": 3949998
+    },
+    "gold.fact_order_items": {
+      "rows": 112650,
+      "files": 3,
+      "bytes": 4189103
+    }
+  },
+  "rows_written_total": 636273,
+  "throughput_rows_per_second": 1897.1,
+  "resources": {
+    "olist-lakehouse-spark-worker-1": {
+      "so_mau": 67,
+      "cpu_dinh_phan_tram": 555.3,
+      "cpu_trung_binh_phan_tram": 206.3,
+      "ram_dinh_mib": 2258.9,
+      "ram_trung_binh_mib": 1295.0
+    },
+    "olist-lakehouse-spark-master-1": {
+      "so_mau": 67,
+      "cpu_dinh_phan_tram": 13.7,
+      "cpu_trung_binh_phan_tram": 2.7,
+      "ram_dinh_mib": 307.7,
+      "ram_trung_binh_mib": 297.5
+    },
+    "olist-lakehouse-airflow-scheduler-1": {
+      "so_mau": 67,
+      "cpu_dinh_phan_tram": 812.5,
+      "cpu_trung_binh_phan_tram": 246.9,
+      "ram_dinh_mib": 3111.9,
+      "ram_trung_binh_mib": 2110.8
+    },
+    "olist-lakehouse-trino-1": {
+      "so_mau": 67,
+      "cpu_dinh_phan_tram": 233.4,
+      "cpu_trung_binh_phan_tram": 21.5,
+      "ram_dinh_mib": 1184.8,
+      "ram_trung_binh_mib": 1032.3
+    }
+  }
+}
