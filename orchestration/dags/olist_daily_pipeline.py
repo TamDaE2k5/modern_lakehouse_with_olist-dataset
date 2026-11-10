@@ -54,7 +54,7 @@ with DAG(
     dag_id="olist_daily_pipeline",
     description="Master Pipeline điều phối toàn diện: Nạp Bronze -> Làm sạch Silver song song -> Dựng Gold Star Schema",
     start_date=datetime(2026, 1, 1, tzinfo=timezone.utc),
-    schedule="@daily",  # Lập lịch chạy tự động mỗi ngày
+    schedule=None,  # Để None khi chạy benchmark kiểm thử (tránh tự động kích hoạt)
     catchup=False,
     max_active_runs=1,
     params=runtime_params(default_mode="full"),

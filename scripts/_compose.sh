@@ -23,11 +23,11 @@ cd "${PROJECT_ROOT}" || exit 1
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-olist-lakehouse}"
 
 COMPOSE_FILES=(
-    -f "docker-compose.yml"              # Hạ tầng lõi: MinIO, PostgreSQL, Spark
-    -f "docker-compose.query.yml"        # Tầng truy vấn: Trino
-    -f "docker-compose.orchestration.yml"# Tầng điều phối: Airflow
-    -f "docker-compose.bi.yml"           # Tầng BI: Superset
-    -f "docker-compose.monitoring.yml"   # Giám sát: Prometheus, Grafana, MailHog
+    -f "docker-compose.yml"               # Hạ tầng lõi: MinIO, PostgreSQL, Spark
+    -f "docker-compose.query.yml"         # Tầng truy vấn: Trino
+    -f "docker-compose.orchestration.yml" # Tầng điều phối: Airflow
+    -f "docker-compose.bi.yml"            # Tầng BI: Superset
+    -f "docker-compose.monitoring.yml"    # Giám sát: Prometheus, Grafana, MailHog
 )
 
 DOCKER_COMPOSE=(docker compose --project-name "${COMPOSE_PROJECT_NAME}" "${COMPOSE_FILES[@]}")
