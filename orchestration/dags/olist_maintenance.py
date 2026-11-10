@@ -138,7 +138,7 @@ with DAG(
     )
 
     # 3. Nén gộp các tệp nhỏ phân mảnh thành tệp Parquet ~128MB
-    # Dùng 8 write_pool_slots từ pool lakehouse_writes để cô lập tài nguyên ghi
+    # Dùng 2 write_pool_slots từ pool lakehouse_writes (V3: pool 2 slots) để cô lập tài nguyên ghi
     rewrite_data_files = spark_submit_task(
         task_id="rewrite_data_files",
         application="/opt/lakehouse/transformation/maintenance/job.py",
@@ -146,7 +146,7 @@ with DAG(
             action="rewrite-data-files",
             run_suffix="maintenance-rewrite",
         ),
-        write_pool_slots=8,
+        write_pool_slots=2,
     )
 
     # 4. Cắt tỉa các snapshot lịch sử cũ quá hạn
@@ -157,7 +157,7 @@ with DAG(
             action="expire-snapshots",
             run_suffix="maintenance-expire",
         ),
-        write_pool_slots=8,
+        write_pool_slots=2,
     )
 
     # 5. Dọn dẹp triệt để các tệp mồ côi (orphan files) không còn dùng trên S3/MinIO
@@ -168,7 +168,7 @@ with DAG(
             action="remove-orphan-files",
             run_suffix="maintenance-orphans",
         ),
-        write_pool_slots=8,
+        write_pool_slots=2,
     )
 
     # Thiết lập chuỗi phụ thuộc tuyến tính nghiêm ngặt:

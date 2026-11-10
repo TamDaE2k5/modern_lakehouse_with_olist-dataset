@@ -92,7 +92,21 @@ def build_spark_session(settings: Settings, app_name: str) -> SparkSession:
         # 5.6. Ngưỡng tự động Broadcast Join 50MB. Lưu ý các gợi ý `F.broadcast()` tường minh
         #      trong tầng Gold vẫn được ưu tiên tuyệt đối, bất kể ngưỡng này là bao nhiêu.
         .config("spark.sql.autoBroadcastJoinThreshold", "52428800")
-        # 5.7. Cấu hình ghi Iceberg: không phân phối lại khi ghi, nhắm tệp Parquet đích 128MB.
+        # ======================================================================
+        # 6. TỐI ƯU HÓA NÂNG CAO PHIÊN BẢN V3 (SENIOR LEAD UPGRADES)
+        # ======================================================================
+        # 6.1. Tái cấu trúc bộ nhớ JVM Spark (Memory Tuning):
+        #      Dành 80% Heap cho vùng Unified Memory (Execution + Storage) và giảm tỉ lệ giữ cứng
+        #      của Storage xuống 20% để ưu tiên tối đa bộ nhớ cho các phép Hash Aggregation / Shuffle
+        #      trong luồng ETL, triệt tiêu hiện tượng tràn đĩa (Spill to Disk).
+        .config("spark.memory.fraction", "0.8")
+        .config("spark.memory.storageFraction", "0.2")
+        # 6.2. Cắt tỉa phân vùng động (Dynamic Partition Pruning - DPP):
+        #      Tự động đẩy bộ lọc từ bảng Dimension xuống bước quét bảng Fact phân vùng trên Iceberg.
+        .config("spark.sql.optimizer.dynamicPartitionPruning.enabled", "true")
+        # 6.3. Bảo toàn gom nhóm dữ liệu khi lập kế hoạch đọc/ghi Iceberg:
+        .config("spark.sql.iceberg.planning.preserve-data-grouping", "true")
+        # 6.4. Cấu hình ghi Iceberg: không phân phối lại khi ghi, nhắm tệp Parquet đích 128MB.
         .config("spark.sql.iceberg.write.distribution-mode", "none")
         .config("spark.sql.iceberg.write.target-file-size-bytes", "134217728")
         .getOrCreate()

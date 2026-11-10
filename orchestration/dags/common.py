@@ -70,6 +70,8 @@ COLLISION_READBACK_INTERVAL = 0.05
 SPARK_SUBMIT_CONF = {
     "spark.eventLog.enabled": "true",
     "spark.eventLog.dir": "file:///opt/airflow/logs/spark-events",
+    "spark.memory.fraction": "0.8",
+    "spark.memory.storageFraction": "0.2",
     "spark.hadoop.fs.s3a.endpoint": "http://minio:9000",
     "spark.hadoop.fs.s3a.endpoint.region": "us-east-1",
     "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
