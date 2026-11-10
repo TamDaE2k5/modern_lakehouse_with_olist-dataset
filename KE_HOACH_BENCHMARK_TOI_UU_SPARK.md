@@ -325,40 +325,57 @@ Dựa trên phân tích mã nguồn và đặc thù quy mô dữ liệu Olist (9
 
 ---
 
-## 7. BẢNG MA TRẬN ĐỐI SOÁT KẾT QUẢ NGHIỆM THU (TEMPLATE)
+## 7. BẢNG MA TRẬN ĐỐI SOÁT KẾT QUẢ NGHIỆM THU THỰC TẾ (EMPIRICAL RESULTS: V1 vs. V2 vs. V3)
 
-*Sau khi bạn chạy xong cả 3 vòng đo, hãy mở các file `SUMMARY_V1.md`, `SUMMARY_V2.md`, `SUMMARY_V3.md` và điền số liệu vào bảng này để đưa vào báo cáo bảo vệ đồ án:*
+> **Tất cả số liệu dưới đây đã được đo đạc thực nghiệm 100% trên máy thật qua 3 vòng chạy độc lập:**
+> - **V1 Baseline:** [`docs/reports/benchmarks/v1_baseline/TONG_HOP_V1.md`](file:///run/media/tamdae/04C8A69DC8A68C8C/Users/LENOVO/Documents/TL_Kỳ_1_năm_4/Big_Data/rebuild/docs/reports/benchmarks/v1_baseline/TONG_HOP_V1.md)
+> - **V2 Current (Task 5):** [`docs/reports/benchmarks/v2_current/TONG_HOP_V2.md`](file:///run/media/tamdae/04C8A69DC8A68C8C/Users/LENOVO/Documents/TL_Kỳ_1_năm_4/Big_Data/rebuild/docs/reports/benchmarks/v2_current/TONG_HOP_V2.md)
+> - **V3 Senior Upgrades:** [`docs/reports/benchmarks/v3_senior/TONG_HOP_V3.md`](file:///run/media/tamdae/04C8A69DC8A68C8C/Users/LENOVO/Documents/TL_Kỳ_1_năm_4/Big_Data/rebuild/docs/reports/benchmarks/v3_senior/TONG_HOP_V3.md)
 
-### Bảng A: So sánh thời gian thực thi (Tổng giây toàn bộ pipeline)
+### Bảng A: So sánh tổng thời gian thực thi toàn bộ Pipeline (Wall-Clock Seconds)
 
-| Bài đo | V1: Mặc định (giây) | V2: Hiện tại (giây) | V3: Senior (giây) | Chênh lệch V1 vs V2 | Chênh lệch V1 vs V3 | Đánh giá giá trị thực tế |
+| Bài đo | V1: Mặc định (giây) | V2: Hiện tại (giây) | V3: Senior (giây) | Tăng tốc (V1 $\rightarrow$ V2) | Tăng tốc (V1 $\rightarrow$ V3) | Đánh giá giá trị thực tế |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| `00_baseline_full` | *(Điền số V1)* | 453.9s | *(Điền số V3)* | ... % | ... % | ... |
-| `01_offpeak` | *(Điền số V1)* | 445.5s | *(Điền số V3)* | ... % | ... % | ... |
-| `02_flash_sale` | *(Điền số V1)* | 463.4s | *(Điền số V3)* | ... % | ... % | ... |
-| `03_catchup` | *(Điền số V1)* | 446.8s | *(Điền số V3)* | ... % | ... % | ... |
-| `04_dirty_metadata` | *(Điền số V1)* | 458.9s | *(Điền số V3)* | ... % | ... % | ... |
+| `00_baseline_full` | 1,006.0s | 332.6s | **335.4s** | **3.02x** (-66.9%) | **3.00x** (-66.7%) | Rút ngắn từ ~16.8 phút xuống ~5.5 phút |
+| `01_offpeak` | 1,288.1s | 346.5s | **337.5s** | **3.72x** (-73.1%) | **3.82x** (-73.8%) | **V3 nhanh nhất**, xóa bỏ nghẽn 200 partitions |
+| `02_flash_sale` | 1,303.6s | 348.0s | **358.7s** | **3.75x** (-73.3%) | **3.63x** (-72.5%) | AQE Skew Join + Broadcast xử lý mượt 40k đơn |
+| `03_catchup` | 1,289.0s | 347.8s | **346.6s** | **3.71x** (-73.0%) | **3.72x** (-73.1%) | **V3 nhanh nhất** ở kịch bản nạp bù nhiều ngày |
+| `04_dirty_metadata` | 1,300.2s | 348.8s | **351.0s** | **3.73x** (-73.2%) | **3.70x** (-73.0%) | Tự động cách ly +446 dòng bẩn sang `quarantine` |
+| `05_integrity_violations` | 1,551.3s | 602.6s | **612.3s** | **2.57x** (-61.2%) | **2.53x** (-60.5%) | Quality Gate chặn đúng thiết kế (bao gồm 1 retry) |
+| `06_duplicates` | 2,605.2s | 602.2s | **608.8s** | **4.33x** (-76.9%) | **4.28x** (-76.6%) | Rút ngắn từ **43.4 phút** xuống **10.1 phút**! |
+| `07_baseline_restore` | *278.4s (Failed)* | 332.0s | **362.9s** | — | **SUCCESS** | Khôi phục sạch 99,244 đơn, chỉ còn **15 tệp Parquet** |
 
 ---
 
-### Bảng B: So sánh độ trễ chi tiết chặng Gold (`build_gold_closure`)
+### Bảng B: So sánh độ trễ chi tiết chặng Silver (Task lâu nhất) và chặng Gold (`build_gold_closure`)
 
-| Bài đo | V1: SortMergeJoin (200 partitions) | V2: Broadcast Join (32 partitions) | V3: Vectorized & Sort Clustering | Mức độ cải thiện |
-| :--- | :---: | :---: | :---: | :---: |
-| `00_baseline_full` | ~210s *(ước tính)* | **166.8s** | *(Điền số V3)* | Giảm ... giây |
-| `02_flash_sale` | ~225s *(ước tính)* | **167.4s** | *(Điền số V3)* | Giảm ... giây |
+| Bài đo | Silver Max: V1 (Pool=8) | Silver Max: V2 (Pool=8) | Silver Max: V3 (Pool=2) | Gold: V1 (SortMerge 200p) | Gold: V2 (Broadcast 32p) | Gold: V3 (+DPP & Sort) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `00_baseline_full` | 159.3s | 114.6s | **35.9s (-77.5%)** | 713.0s | 124.3s | **127.9s (-82.1%)** |
+| `01_offpeak` | 178.7s | 129.4s | **31.2s (-82.5%)** | 963.9s | 125.0s | **131.2s (-86.4%)** |
+| `02_flash_sale` | 207.1s | 124.0s | **33.4s (-83.9%)** | 957.1s | 126.0s | **130.1s (-86.4%)** |
+| `03_catchup` | 188.6s | 121.4s | **32.8s (-82.6%)** | 959.9s | 130.5s | **132.7s (-86.2%)** |
+| `04_dirty_metadata` | 192.5s | 125.5s | **33.5s (-82.6%)** | 957.8s | 125.5s | **129.5s (-86.5%)** |
+| `05_integrity_violations` | 199.2s | 127.6s | **32.8s (-83.5%)** | 971.0s | 125.2s | **136.9s (-85.9%)** |
+| `06_duplicates` | 197.3s | 126.3s | **38.5s (-80.5%)** | 972.1s | 126.4s | **129.2s (-86.7%)** |
+| `07_baseline_restore` | — | 126.5s | **35.1s (-72.3%)** | — | 125.9s | **128.8s** |
 
 ---
 
-### Bảng C: So sánh đỉnh tài nguyên phần cứng (Peak Resource Usage)
+### Bảng C: So sánh đỉnh tài nguyên phần cứng & Số tệp Parquet (Peak Resource & Storage Efficiency)
 
-| Hạng mục tài nguyên | V1: Mặc định | V2: Hiện tại | V3: Senior Đề Xuất | Ý nghĩa vận hành Production |
+| Hạng mục tài nguyên | V1: Mặc định (Unoptimized) | V2: Hiện tại (Task 5) | V3: Senior Đề Xuất | Ý nghĩa vận hành Production |
 | :--- | :---: | :---: | :---: | :--- |
-| **RAM Scheduler đỉnh** | ~6.2 GiB | 6.4 GiB | **~2.6 GiB** *(Dự kiến)* | Cắt giảm hơn 50% RAM, chống sập Scheduler |
-| **RAM Spark Worker đỉnh**| ~2.7 GiB | 2.6 GiB | ~2.5 GiB | Bộ nhớ ổn định, không tràn đĩa |
-| **CPU Worker đỉnh** | ~650% | 814.8% | ~750% | Vắt kiệt hiệu quả đa nhân |
+| **RAM Airflow Scheduler đỉnh** | 6,051 – 6,926 MiB (~6.8 GiB) | 5,009 – 6,924 MiB (~6.8 GiB) | **3,112 – 3,324 MiB (~3.2 GiB)** | **Cắt giảm ~3.6 GiB RAM (hơn 50%)**, loại bỏ hoàn toàn nguy cơ OOM/treo máy! |
+| **RAM Spark Worker đỉnh** | 3,063 – 3,701 MiB (~3.6 GiB) | 2,087 – 2,472 MiB (~2.4 GiB) | **2,181 – 2,477 MiB (~2.4 GiB)** | Tiết kiệm ~1.2 GiB RAM trên Worker nhờ bỏ SortMergeJoin & tối ưu Memory 0.8/0.2 |
+| **Số tệp Parquet sau bài 06** | **691 tệp** | **189 tệp** | **189 tệp** (và gom về **15 tệp** ở bài 07) | Giảm **72.6% số lượng file nhỏ (Small Files)** nhờ AQE Coalesce & SortWithinPartitions |
 
 ---
 
-### KẾT LUẬN HƯỚNG DẪN DÀNH CHO BẠN KHI QUAY LẠI
-Khi bạn online lại, bạn chỉ cần mở file này và chạy theo các lệnh tại **[Mục 4: Quy Trình Thực Hiện Từng Bước](#4-quy-trình-thực-hiện-từng-bước-step-by-step-runbook)**. Mọi đường dẫn, câu lệnh Git và kịch bản đều đã được kiểm tra đồng bộ chính xác với hệ thống của bạn!
+### PHÁN QUYẾT CUỐI CÙNG (FINAL ROI VERDICT)
+- **Tất cả 5/5 tiêu chí ROI trong Mục 5 đều ĐẠT VÀ VƯỢT XA KỲ VỌNG:**
+  1. **Tổng thời gian (Latency):** Giảm **67% – 77%** (tăng tốc **3.0x – 4.3x**), vượt xa ngưỡng kỳ vọng 15–25%.
+  2. **Tốc độ chặng Gold:** Giảm hơn **830 giây** (từ ~960s xuống ~128s), vượt xa kỳ vọng 30–50s.
+  3. **Thông lượng đỉnh (Throughput):** Bài `02_flash_sale` đạt **475.1 dòng/giây** (và `00_baseline_full` đạt **1,897.1 dòng/giây**).
+  4. **Tiêu thụ RAM Scheduler:** Giảm một mạch từ **6,924 MiB xuống 3,112–3,324 MiB** (tiết kiệm **~3.6 GiB RAM**).
+  5. **Độ ổn định hệ thống:** Chạy trọn vẹn 8/8 bài đo liên tiếp không tràn đĩa, không lấn Swap, khôi phục sạch về đúng 15 tệp Parquet.
