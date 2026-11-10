@@ -2,11 +2,11 @@
   "label": "01_offpeak",
   "dataset": "data/synthetic/01_offpeak",
   "dag_id": "olist_daily_pipeline",
-  "run_id": "bm-01-offpeak-155250",
+  "run_id": "bm-01-offpeak-215019",
   "batch_id": "bm-01-offpeak",
   "mode": "incremental",
-  "measured_at": "2026-11-10T08:59:01.830173+00:00",
-  "wall_clock_seconds": 346.5,
+  "measured_at": "2026-11-10T14:56:24.134974+00:00",
+  "wall_clock_seconds": 337.5,
   "dag_result": "SUCCESS",
   "task_states": {
     "bronze_ingestion_complete": "success",
@@ -27,22 +27,22 @@
   },
   "task_durations_seconds": {
     "bronze_ingestion_complete": 0.0,
-    "build_gold_closure": 125.0,
-    "ingest_bronze_layer": 21.3,
+    "build_gold_closure": 131.2,
+    "ingest_bronze_layer": 22.6,
     "lakehouse_pipeline_complete": 0.0,
-    "run_quality_checks": 48.3,
-    "silver_customers": 51.6,
-    "silver_geography": 67.2,
-    "silver_order_items": 40.3,
-    "silver_order_payments": 106.0,
-    "silver_order_reviews": 92.1,
-    "silver_orders": 79.7,
-    "silver_products": 118.7,
-    "silver_sellers": 129.4,
+    "run_quality_checks": 50.1,
+    "silver_customers": 30.2,
+    "silver_geography": 30.1,
+    "silver_order_items": 29.0,
+    "silver_order_payments": 29.2,
+    "silver_order_reviews": 26.9,
+    "silver_orders": 31.2,
+    "silver_products": 26.0,
+    "silver_sellers": 17.4,
     "silver_transformation_complete": 0.0,
     "validate_runtime_params": 0.1
   },
-  "slowest_task": "silver_sellers",
+  "slowest_task": "build_gold_closure",
   "tables_before": {
     "bronze.orders": {
       "rows": 99441,
@@ -77,7 +77,7 @@
     "gold.fact_orders": {
       "rows": 99441,
       "files": 3,
-      "bytes": 4079933
+      "bytes": 3949998
     },
     "gold.fact_order_items": {
       "rows": 112650,
@@ -119,7 +119,7 @@
     "gold.fact_orders": {
       "rows": 99441,
       "files": 4,
-      "bytes": 4074083
+      "bytes": 3959394
     },
     "gold.fact_order_items": {
       "rows": 112650,
@@ -161,7 +161,7 @@
     "gold.fact_orders": {
       "rows": 0,
       "files": 1,
-      "bytes": -5850
+      "bytes": 9396
     },
     "gold.fact_order_items": {
       "rows": 0,
@@ -174,31 +174,31 @@
   "resources": {
     "olist-lakehouse-spark-worker-1": {
       "so_mau": 68,
-      "cpu_dinh_phan_tram": 835.1,
-      "cpu_trung_binh_phan_tram": 202.1,
-      "ram_dinh_mib": 2251.8,
-      "ram_trung_binh_mib": 1108.2
+      "cpu_dinh_phan_tram": 772.7,
+      "cpu_trung_binh_phan_tram": 213.2,
+      "ram_dinh_mib": 2181.1,
+      "ram_trung_binh_mib": 1268.1
     },
     "olist-lakehouse-spark-master-1": {
       "so_mau": 68,
-      "cpu_dinh_phan_tram": 15.3,
-      "cpu_trung_binh_phan_tram": 2.6,
-      "ram_dinh_mib": 321.0,
-      "ram_trung_binh_mib": 256.7
+      "cpu_dinh_phan_tram": 18.4,
+      "cpu_trung_binh_phan_tram": 1.9,
+      "ram_dinh_mib": 337.6,
+      "ram_trung_binh_mib": 320.8
     },
     "olist-lakehouse-airflow-scheduler-1": {
       "so_mau": 68,
-      "cpu_dinh_phan_tram": 1409.9,
-      "cpu_trung_binh_phan_tram": 268.7,
-      "ram_dinh_mib": 6144.0,
-      "ram_trung_binh_mib": 2629.5
+      "cpu_dinh_phan_tram": 789.9,
+      "cpu_trung_binh_phan_tram": 282.1,
+      "ram_dinh_mib": 3282.9,
+      "ram_trung_binh_mib": 2169.4
     },
     "olist-lakehouse-trino-1": {
       "so_mau": 68,
-      "cpu_dinh_phan_tram": 218.5,
-      "cpu_trung_binh_phan_tram": 28.4,
-      "ram_dinh_mib": 1611.8,
-      "ram_trung_binh_mib": 1457.9
+      "cpu_dinh_phan_tram": 241.9,
+      "cpu_trung_binh_phan_tram": 38.4,
+      "ram_dinh_mib": 1481.7,
+      "ram_trung_binh_mib": 1331.8
     }
   }
 }
