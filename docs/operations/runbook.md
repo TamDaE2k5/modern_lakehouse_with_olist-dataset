@@ -81,10 +81,20 @@ down -v --remove-orphans
 
 ---
 
-### 2.5. Lối tắt bằng PowerShell (khuyến nghị trên Windows)
+### 2.5. Lối tắt bằng Script Tự Động (Khuyến nghị trên cả Linux & Windows)
 
 Thay cho các lệnh `docker compose` dài 6 dòng ở trên, dùng bộ script trong `scripts/`:
 
+**Trên Linux / Ubuntu / WSL2:**
+```bash
+./scripts/up.sh                  # Bật cụm và CHỜ tới khi mọi healthcheck xanh, rồi in bảng cổng
+./scripts/verify_stack.sh        # Kiểm tra sức khỏe toàn diện trong ~60 giây (5 nhóm kiểm tra)
+./scripts/logs.sh airflow-scheduler --tail 200
+./scripts/down.sh                # Dừng, BẢO TOÀN dữ liệu
+./scripts/down.sh -v             # Dừng và XÓA SẠCH dữ liệu (bắt gõ chữ XOA để xác nhận)
+```
+
+**Trên Windows PowerShell:**
 ```powershell
 .\scripts\up.ps1                  # Bật cụm và CHỜ tới khi mọi healthcheck xanh, rồi in bảng cổng
 .\scripts\verify_stack.ps1        # Kiểm tra sức khỏe toàn diện trong ~60 giây (5 nhóm kiểm tra)
@@ -92,11 +102,6 @@ Thay cho các lệnh `docker compose` dài 6 dòng ở trên, dùng bộ script 
 .\scripts\down.ps1                # Dừng, BẢO TOÀN dữ liệu
 .\scripts\down.ps1 -RemoveVolumes # Dừng và XÓA SẠCH dữ liệu (bắt gõ chữ XOA để xác nhận)
 ```
-
-> [!CAUTION]
-> File `bash.txt` ở thư mục gốc ghi lệnh `down -v --remove-orphans`. Cờ `-v` sẽ **xóa vĩnh viễn**
-> các volume `minio-data` và `postgres-data`, tức mất toàn bộ Lakehouse đã dựng. Khi chỉ muốn
-> giải phóng RAM, hãy dùng `down --remove-orphans` (KHÔNG có `-v`) hoặc `.\scripts\down.ps1`.
 
 ---
 
@@ -156,9 +161,10 @@ Great Expectations trả về mức `ERROR`, hệ thống tự động gửi ema
   `ALERT_SMTP_PASSWORD`, `ALERT_SMTP_STARTTLS=true` trong `.env` rồi khởi động lại Airflow.
 
 ### 4.2. Khắc phục Xung đột Tài nguyên Ghi (Concurrency & Resource Lock)
-* **Hiện tượng:** Spark Worker bị nghẽn (hanging) hoặc báo lỗi `AirflowTaskTimeout` do nhiều job Spark ghi đồng thời vào Iceberg catalog.
-* **Xử lý:**
-  * Airflow đã được trang bị cơ chế điều tiết thông qua Pool `lakehouse_writes` với 8 slots. Mọi job ghi lớn (Silver, Gold, Maintenance) bắt buộc phải chiếm slots trong pool này để xếp hàng tuần tự.
+* **Hiện tượng:** Spark Worker bị nghẽn (hanging) hoặc Airflow Scheduler ngốn quá nhiều RAM do nhiều job Spark ghi đồng thời vào Iceberg catalog.
+* **Xử lý (Đã tối ưu ở Phiên bản V3 Senior):**
+  * Airflow đã được trang bị cơ chế điều tiết thông qua Pool `lakehouse_writes` giới hạn ở **2 slots** (giảm từ 8 slots ở V1/V2 xuống 2 slots ở V3). Nhờ đó, tại mỗi thời điểm chỉ có tối đa 2 tiến trình Spark Driver khởi chạy trong `airflow-scheduler` (cắt giảm ~3.6 GiB RAM đỉnh từ 6.9 GiB xuống 3.2 GiB và giúp mỗi bảng Silver hoàn thành trong ~32 giây mà không bị tranh chấp 2 cores của Worker).
+  * Riêng các tác vụ ghi/xóa của `olist_maintenance` yêu cầu chiếm trọn cả 2/2 slots (`write_pool_slots=2`), đảm bảo độc quyền tuyệt đối khi bảo trì.
   * Kiểm tra slots khả dụng trong pool:
     ```bash
     docker exec olist-lakehouse-airflow-scheduler-1 airflow pools list

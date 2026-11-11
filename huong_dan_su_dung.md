@@ -11,15 +11,23 @@
 
 ## 0. Ba lệnh cần nhớ (nếu chỉ đọc được 10 giây thì đọc phần này)
 
-Mở **PowerShell**, đứng tại thư mục `D:\BTL_NAM4\BIGDATA\lakehouse\rebuild`:
+Đứng tại thư mục gốc `rebuild`:
 
+**Trên Linux / Ubuntu / WSL2 (Bash):**
+```bash
+./scripts/up.sh            # Bật cụm, tự chờ đến khi toàn bộ container đều khỏe (~1-2 phút)
+./scripts/verify_stack.sh  # Kiểm tra sức khỏe toàn diện tự động trong ~60 giây
+./scripts/down.sh          # Tắt cụm, GIỮ NGUYÊN toàn bộ dữ liệu
+```
+
+**Trên Windows (PowerShell):**
 ```powershell
-.\scripts\up.ps1            # Bật cụm, tự chờ đến khi 13 container đều khỏe (3-6 phút)
+.\scripts\up.ps1            # Bật cụm, tự chờ đến khi toàn bộ container đều khỏe
 .\scripts\verify_stack.ps1  # Kiểm tra sức khỏe toàn diện trong ~60 giây
 .\scripts\down.ps1          # Tắt cụm, GIỮ NGUYÊN toàn bộ dữ liệu
 ```
 
-Nếu `verify_stack.ps1` in ra dòng xanh **`KET QUA: TAT CA KIEM TRA DEU PASS`** thì hệ thống đang ở
+Nếu `verify_stack` in ra dòng xanh **`KET QUA: TAT CA KIEM TRA DEU PASS`** thì hệ thống đang ở
 đúng trạng thái đã nghiệm thu, bạn có thể demo ngay.
 
 ---
@@ -114,22 +122,24 @@ Chạy 5 nhóm kiểm tra, mỗi mục in `[PASS]` hoặc `[FAIL]`:
 ```
 
 > [!CAUTION]
-> **`.\scripts\down.ps1 -RemoveVolumes` sẽ xóa vĩnh viễn toàn bộ Lakehouse** (volume `minio-data` và
+> **`./scripts/down.sh -v` (hoặc `.\scripts\down.ps1 -RemoveVolumes`) sẽ xóa vĩnh viễn toàn bộ Lakehouse** (volume `minio-data` và
 > `postgres-data`). Script có hỏi xác nhận, bắt gõ đúng chữ `XOA`. Chỉ dùng khi thực sự muốn dựng lại
-> từ đầu — và dựng lại mất khoảng 25-30 phút.
->
-> Tương tự, **tệp `bash.txt` ở thư mục gốc có ghi lệnh `docker compose down -v`** — đừng copy-paste
-> nguyên câu đó, cờ `-v` chính là cờ xóa sạch dữ liệu.
+> từ đầu.
 
 ### 3.4. Xem log khi có trục trặc
 
-```powershell
+```bash
+# Trên Linux / Bash:
+./scripts/logs.sh airflow-scheduler --tail 200
+./scripts/logs.sh spark-worker --follow
+
+# Trên Windows PowerShell:
 .\scripts\logs.ps1 -Service airflow-scheduler -Tail 200
-.\scripts\logs.ps1 -Service spark-worker -Follow      # Bám đuôi log thời gian thực (Ctrl+C để thoát)
+.\scripts\logs.ps1 -Service spark-worker -Follow
 ```
 
 Tên dịch vụ thường dùng: `airflow-scheduler`, `airflow-webserver`, `spark-master`, `spark-worker`,
-`trino`, `superset`, `minio`, `postgres`, `prometheus`, `grafana`, `mailhog`, `pipeline-metrics`.
+`trino`, `superset`, `minio`, `postgres`, `prometheus`, `grafana`, `pipeline-metrics`.
 
 ---
 
@@ -137,12 +147,12 @@ Tên dịch vụ thường dùng: `airflow-scheduler`, `airflow-webserver`, `spa
 
 ### 4.1. Bốn DAG làm gì
 
-| DAG | Nội dung | Thời gian | Khi nào dùng |
+| DAG | Nội dung | Thời gian (V3 Senior) | Khi nào dùng |
 |:---|:---|:---|:---|
-| `olist_daily_pipeline` | Bronze → Silver → Gold → Quality (toàn trình, tự chứa) | ~7,5 phút | Nạp lại dữ liệu từ đầu, hoặc nạp lô mới |
-| `olist_transformation` | Chỉ Silver → Gold, **không** nạp Bronze | ~5 phút | Sửa logic biến đổi, chạy lại mà không nạp lại thô |
-| `olist_quality` | 198 bài kiểm định Great Expectations | ~2 phút | Muốn kiểm tra chất lượng riêng |
-| `olist_maintenance` | Nén tệp, dọn snapshot, xóa tệp mồ côi của Iceberg | ~1,5 phút | Sau nhiều lần nạp tăng dần, khi số tệp Parquet phình to |
+| `olist_daily_pipeline` | Bronze → Silver → Gold → Quality (toàn trình, tự chứa) | **~5,5 phút (335s)** | Nạp lại dữ liệu từ đầu, hoặc nạp lô mới |
+| `olist_transformation` | Chỉ Silver → Gold, **không** nạp Bronze | **~4,0 phút** | Sửa logic biến đổi, chạy lại mà không nạp lại thô |
+| `olist_quality` | 198 bài kiểm định chất lượng | **~55 giây** | Muốn kiểm tra chất lượng riêng |
+| `olist_maintenance` | Nén tệp, dọn snapshot, xóa tệp mồ côi của Iceberg | **~1,5 phút** | Sau nhiều lần nạp tăng dần, khi số tệp Parquet phình to |
 
 > [!IMPORTANT]
 > `olist_daily_pipeline` có lịch `@daily` và `max_active_runs=1`. **Hệ quả thực tế:** ngay khi bạn
@@ -358,11 +368,8 @@ toàn bộ PASS. Mở sẵn 5 tab trình duyệt: Airflow, Superset, Grafana, Ma
 
 ## 9. Những việc tuyệt đối không làm
 
-1. **Không chạy `down.ps1 -RemoveVolumes`** trừ khi thực sự muốn dựng lại từ đầu (mất 25-30 phút).
-2. **Không copy lệnh `docker compose down -v` từ `bash.txt`** — cờ `-v` xóa sạch dữ liệu.
-3. **Không xóa cụm cũ `olist-final-20260907-r1`** — chỉ dừng, dữ liệu trong đó vẫn cần giữ.
-4. **Không điền mật khẩu Gmail thật vào `.env`** — đã có MailHog làm hộp thư giả lập.
-5. **Không demo ngay sau khi nạp bộ chaos `05`/`06`** mà quên khôi phục — hệ thống sẽ đỏ trước mặt thầy.
+1. **Không chạy `./scripts/down.sh -v` (hoặc `down.ps1 -RemoveVolumes`)** trừ khi thực sự muốn xóa sạch dữ liệu để dựng lại từ đầu.
+2. **Không demo ngay sau khi nạp bộ chaos `05`/`06`** mà quên chạy bài `07_baseline_restore` để khôi phục dữ liệu sạch — vì bài 05 và 06 chủ động kích hoạt cổng chất lượng báo đỏ (`FAILED`).
 
 ---
 
@@ -370,14 +377,17 @@ toàn bộ PASS. Mở sẵn 5 tab trình duyệt: Airflow, Superset, Grafana, Ma
 
 | Khi bạn muốn… | Đọc tệp này |
 |:---|:---|
+| **Hiểu toàn diện kiến trúc hệ thống từ con số 0 (Mermaid + Hỏi đáp bảo vệ)** | [`CAM_NANG_KIEN_TRUC_TOAN_DIEN_OLIST_LAKEHOUSE_V3.md`](CAM_NANG_KIEN_TRUC_TOAN_DIEN_OLIST_LAKEHOUSE_V3.md) |
+| **Xem bảng đối soát thực nghiệm Benchmark 3 phiên bản (V1 vs V2 vs V3)** | [`KE_HOACH_BENCHMARK_TOI_UU_SPARK.md`](KE_HOACH_BENCHMARK_TOI_UU_SPARK.md) |
 | **Cài đặt lần đầu trên một máy mới** (nạp image, dựng lại từ con số 0) | [`CAI_DAT_CHO_NHOM.md`](CAI_DAT_CHO_NHOM.md) |
 | Hiểu kiến trúc tổng thể, bảng cổng, cấu trúc thư mục | [`README.md`](README.md) |
 | Xem kết quả nghiệm thu, số liệu benchmark, 9 ý tưởng nâng cấp | [`docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md`](docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md) |
+| Đánh giá hiện trạng & Lộ trình nâng cấp lên Enterprise Production | [`docs/reports/DANH_GIA_HIEN_TRANG_VA_LO_TRINH_PRODUCTION.md`](docs/reports/DANH_GIA_HIEN_TRANG_VA_LO_TRINH_PRODUCTION.md) |
 | Xử lý sự cố vận hành chuyên sâu, sao lưu & khôi phục | [`docs/operations/runbook.md`](docs/operations/runbook.md) |
 | Kịch bản thuyết minh chi tiết hơn | [`docs/operations/demo_guide.md`](docs/operations/demo_guide.md) |
 | Hiểu luồng dữ liệu Bronze → Silver → Gold | [`docs/architecture/data_flow.md`](docs/architecture/data_flow.md) |
 | Tra ý nghĩa từng cột trong từng bảng | [`docs/data_model/column_dictionary.md`](docs/data_model/column_dictionary.md) |
-| Hiểu mô hình sao (star schema) tầng Gold | [`docs/data_model/star_old.md`](docs/data_model/star_old.md) |
+| Hiểu mô hình sao (Star Schema chuẩn Kimball) tầng Gold | [`docs/data_model/star_schema.md`](docs/data_model/star_schema.md) |
 | Biết bản rebuild hơn bản cũ ở điểm nào | [`docs/SO_SANH_BAN_CU_VA_MOI.md`](docs/SO_SANH_BAN_CU_VA_MOI.md) |
 | Đọc nhật ký triển khai từ con số 0 | [`NHAT_KY_REBUILD_LAKEHOUSE.md`](NHAT_KY_REBUILD_LAKEHOUSE.md) |
 

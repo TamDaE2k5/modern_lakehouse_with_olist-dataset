@@ -152,9 +152,9 @@ Dữ liệu **vẫn còn nguyên**, lần sau chỉ cần `.\scripts\up.ps1` là
 bước 2 và bước 4.
 
 > [!CAUTION]
-> **Tuyệt đối không chạy `.\scripts\down.ps1 -RemoveVolumes`** và **không chạy
-> `docker compose down -v`** (kể cả khi thấy câu lệnh đó trong tệp `bash.txt`). Cờ `-v` sẽ **xóa
-> sạch toàn bộ Lakehouse**, và dựng lại mất 25–30 phút.
+> **Tuyệt đối không chạy `./scripts/down.sh -v` (hoặc `.\scripts\down.ps1 -RemoveVolumes`)** và **không chạy
+> `docker compose down -v`** nếu chỉ muốn tạm tắt máy nghỉ ngơi. Cờ `-v` sẽ **xóa
+> sạch toàn bộ dữ liệu Lakehouse**, và dựng lại mất 15–20 phút.
 
 ---
 

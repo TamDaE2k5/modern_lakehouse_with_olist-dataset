@@ -83,112 +83,99 @@ Tất cả các dịch vụ công bố ra máy Host đều được cố định
 * Docker Engine 24.0+ & Docker Compose v2.20+.
 * RAM khả dụng tối thiểu: **4.0 GiB** (hệ thống vận hành mượt mà ở mức 4 - 6 GiB RAM).
 
-### 3.2. Bật toàn bộ Hệ sinh thái (13 Containers)
-Tại thư mục `rebuild`:
+### 3.2. Bật toàn bộ Hệ sinh thái (Linux / WSL2 / Windows)
+Tại thư mục `rebuild`, sử dụng trực tiếp bộ kịch bản vận hành tự động (tự động chờ toàn bộ dịch vụ đạt trạng thái `healthy`):
 ```bash
-docker compose --project-name olist-lakehouse \
-  -f docker-compose.yml \
-  -f docker-compose.query.yml \
-  -f docker-compose.orchestration.yml \
-  -f docker-compose.bi.yml \
-  -f docker-compose.monitoring.yml \
-up -d
+# Trên Linux / macOS / WSL2:
+./scripts/up.sh
+
+# Hoặc trên Windows PowerShell:
+.\scripts\up.ps1
 ```
 
-### 3.3. Kiểm tra trạng thái sức khỏe các Container
+### 3.3. Kiểm tra sức khỏe toàn diện tự động (60 giây)
 ```bash
-docker compose --project-name olist-lakehouse \
-  -f docker-compose.yml \
-  -f docker-compose.query.yml \
-  -f docker-compose.orchestration.yml \
-  -f docker-compose.bi.yml \
-  -f docker-compose.monitoring.yml \
-ps
+# Kiểm tra toàn bộ Container, cổng Web UI, 4 DAGs, 4 chỉ số doanh thu Trino và Prometheus targets:
+./scripts/verify_stack.sh
 ```
-*Tất cả 13 container chính phải ở trạng thái `healthy` hoặc `running`.*
 
 ### 3.4. Dừng hệ thống giải phóng RAM (Giữ nguyên toàn bộ dữ liệu)
 ```bash
-docker compose --project-name olist-lakehouse \
-  -f docker-compose.yml \
-  -f docker-compose.query.yml \
-  -f docker-compose.orchestration.yml \
-  -f docker-compose.bi.yml \
-  -f docker-compose.monitoring.yml \
-down --remove-orphans
+# Dừng an toàn, bảo toàn dữ liệu trong Docker volumes:
+./scripts/down.sh
+
+# Nếu muốn xóa sạch toàn bộ dữ liệu (volumes) để dựng lại từ đầu:
+./scripts/down.sh -v
 ```
 
 ---
 
-## 4. Cấu Trúc Thư Mục Dự Án (Repository Structure)
+## 4. Cấu Trúc Thư Mục Dự Án (Repository Structure — Phiên Bản V3 Senior)
 
 ```text
 rebuild/
+├── CAM_NANG_KIEN_TRUC_TOAN_DIEN_OLIST_LAKEHOUSE_V3.md # ★ Cẩm nang giải phẫu kiến trúc từ A-Z (Mermaid + Hỏi Đáp)
+├── KE_HOACH_BENCHMARK_TOI_UU_SPARK.md                 # ★ Báo cáo & Ma trận đối soát thực nghiệm V1 vs V2 vs V3
+├── HUONG_DAN_THAM_QUAN_HE_THONG.md                    # Cẩm nang thực hành khám phá từng dịch vụ (Hands-on Tour)
+├── huong_dan_su_dung.md                               # Hướng dẫn vận hành nhanh & kịch bản demo 10 phút
+├── CAI_DAT_CHO_NHOM.md                                # Hướng dẫn cài đặt nhanh cho thành viên nhóm từ file .tar
+├── NHAT_KY_REBUILD_LAKEHOUSE.md                       # Nhật ký kỹ thuật chi tiết các chặng xây dựng hệ thống
 ├── data/
 │   ├── raw/                       # 9 tập dữ liệu gốc Olist CSV từ Kaggle
-│   └── synthetic/                 # 6 bộ dữ liệu kiểm thử sinh từ dữ liệu thật (xem scripts/)
+│   └── synthetic/                 # 6 bộ dữ liệu kiểm thử tải & chaos sinh từ dữ liệu thật
 ├── data_quality/
 │   ├── gx/gx.yml                  # Cấu hình Great Expectations context
 │   ├── suites/                    # 3 bộ quy tắc kiểm định: bronze.json, silver.json, gold.json
-│   └── run_checks.py              # Điểm vào chạy kiểm định Great Expectations
-├── dashboards/superset/           # Cấu hình Superset xuất bản tự động
-│   ├── charts/                    # 14 biểu đồ (gồm phễu chuyển đổi vòng đời đơn hàng)
-│   ├── dashboards/                # 5 dashboards kinh doanh
-│   ├── datasets/                  # 8 virtual datasets trỏ vào Trino
-│   └── databases/trino.yaml       # Kết nối Superset -> Trino
-├── docs/                          # Hệ thống tài liệu kiến trúc và vận hành
+│   └── run_checks.py              # Điểm vào chạy kiểm định chất lượng
+├── dashboards/superset/           # Cấu hình Superset xuất bản tự động (14 charts, 5 dashboards)
+├── docs/                          # Hệ thống tài liệu kỹ thuật chuyên sâu
 │   ├── architecture/              # Kiến trúc phân tầng Medallion & Luồng dữ liệu
-│   ├── data_model/                # Star Schema, từ điển cột, data contracts
-│   ├── operations/                # Runbook vận hành, demo guide
-│   ├── reports/                   # Báo cáo nghiệm thu + số liệu benchmark (JSON)
-│   ├── security/                  # Ghi chú về ranh giới tin cậy khi chạy cục bộ
-│   └── superpowers/               # Lưu trữ các bản spec & plan của những đợt làm trước
+│   ├── data_model/                # Star Schema chuẩn Kimball, từ điển cột, data contracts
+│   ├── operations/                # Runbook vận hành, kịch bản demo
+│   ├── reports/                   # Báo cáo nghiệm thu, lộ trình Production & kết quả Benchmark (V1, V2, V3)
+│   └── security/                  # Ghi chú về ranh giới tin cậy và phân quyền cục bộ
 ├── infrastructure/
-│   ├── alerts/email_alert.py      # Module gửi email cảnh báo sự cố qua SMTP
-│   ├── docker/                    # Dockerfile của airflow, spark, superset, minio, mc
-│   ├── minio/                     # Script tạo bucket & 3 chính sách phân quyền
-│   ├── monitoring/                # Cấu hình Prometheus, Grafana, Blackbox exporter
+│   ├── alerts/email_alert.py      # Module gửi email cảnh báo sự cố qua SMTP (Gmail / MailHog)
+│   ├── docker/                    # Dockerfile của airflow, spark, superset, minio, mc + init pool (2 slots)
+│   ├── minio/                     # Script tạo bucket & 3 chính sách phân quyền IAM (upload, process, query)
+│   ├── monitoring/                # Cấu hình Prometheus, Grafana (3 dashboards), Blackbox exporter
 │   ├── postgres/init/             # Init SQL tạo role và database cho Iceberg/Airflow/Superset
 │   ├── superset/                  # Cấu hình và script khởi tạo Superset
-│   └── trino/                     # Catalog Iceberg, cấu hình JVM và script xuất bản views
+│   └── trino/                     # Catalog Iceberg, cấu hình JVM và script xuất bản 4 semantic views
 ├── ingestion/
 │   ├── validate_dataset.py        # Thẩm định đúng 9 file CSV và khớp header với registry
 │   └── upload_to_minio.py         # Nạp dữ liệu đã thẩm định lên MinIO bucket raw/
 ├── monitoring/exporters/
 │   └── pipeline_metrics.py        # Exporter metrics Lakehouse cho Prometheus (cổng 9101)
-├── orchestration/dags/            # 4 Airflow DAGs
-│   ├── common.py                  # Thư viện dùng chung, resource pool, failure callback + email
+├── orchestration/dags/            # 4 Airflow DAGs chuẩn hóa
+│   ├── common.py                  # SparkSubmitOperator, Pool lakehouse_writes (2 slots), JVM Memory 0.8/0.2
 │   ├── olist_daily_pipeline.py    # DAG tổng: Bronze -> Silver -> Gold -> Quality
-│   ├── olist_transformation.py    # DAG chuyển đổi: 8 bảng Silver song song -> Gold
-│   ├── olist_quality.py           # DAG kiểm định chất lượng Great Expectations
+│   ├── olist_transformation.py    # DAG chuyển đổi: 8 bảng Silver -> Gold
+│   ├── olist_quality.py           # DAG kiểm định chất lượng (198 checks)
 │   └── olist_maintenance.py       # DAG bảo trì Iceberg: nén tệp, dọn snapshot, xóa orphan
-├── scripts/                       # Bộ công cụ sinh dữ liệu kiểm thử & vận hành
-│   ├── generate_load_datasets.py  # Sinh 3 bộ dữ liệu test tải và xử lý tăng dần
-│   ├── generate_chaos_datasets.py # Sinh 3 bộ dữ liệu test khả năng chịu lỗi
-│   ├── olist_dataset_common.py    # Thư viện dùng chung của 2 script sinh dữ liệu
-│   ├── stage_dataset.py           # Đẩy một bộ dữ liệu lên MinIO raw/olist/
-│   ├── run_benchmark.py           # Chạy một bài benchmark và ghi số liệu đo được
-│   ├── up.ps1 / down.ps1          # Bật / tắt cụm container (PowerShell)
-│   ├── verify_stack.ps1           # Kiểm tra sức khỏe toàn diện trong 60 giây
-│   ├── run_benchmarks.ps1         # Chạy trọn chuỗi benchmark 8 bài
-│   └── logs.ps1                   # Xem log của một dịch vụ bất kỳ
+├── scripts/                       # Bộ công cụ vận hành (Bash .sh & PowerShell .ps1) + Benchmark
+│   ├── up.sh / up.ps1             # Bật toàn cụm và chờ healthcheck
+│   ├── down.sh / down.ps1         # Tắt cụm an toàn (hỗ trợ cờ -v để xóa volumes)
+│   ├── verify_stack.sh / .ps1     # Kiểm tra sức khỏe toàn diện tự động trong 60 giây
+│   ├── start_core.sh              # Build images & khởi động riêng tầng Core (MinIO, Postgres, Spark)
+│   ├── run_benchmarks.sh / .ps1   # Chạy tự động chuỗi 8 kịch bản benchmark (00 -> 07)
+│   ├── run_benchmark.py           # Đo thời gian, lấy mẫu CPU/RAM 3 giây/lần và đếm file Parquet
+│   ├── summarize_benchmarks.py    # Kết xuất bảng tổng hợp Markdown từ các file JSON benchmark
+│   ├── watchdog_guard.sh          # Vệ sĩ canh gác RAM/Swap bảo vệ hệ điều hành không bị treo OOM
+│   ├── generate_load_datasets.py  # Sinh 3 bộ dữ liệu test tải (01_offpeak, 02_flash_sale, 03_catchup)
+│   ├── generate_chaos_datasets.py # Sinh 3 bộ dữ liệu test chịu lỗi (04_dirty, 05_integrity, 06_duplicates)
+│   └── stage_dataset.py           # Đẩy một bộ dữ liệu bất kỳ lên s3://raw/olist/
 ├── sql/
 │   ├── analysis/                  # 6 truy vấn phân tích nghiệp vụ mẫu
-│   └── trino/                     # create_views.sql (4 semantic views), reconciliation, benchmark
+│   └── trino/                     # create_views.sql (4 semantic views), reconciliation, integrity_matrix
 ├── transformation/
-│   ├── bronze/job.py              # Spark Ingestion tạo 9 bảng Iceberg Bronze
-│   ├── silver/job.py              # Spark Transform tạo 8 bảng Silver + vùng cách ly
-│   ├── gold/job.py                # Spark Modeling tạo 14 bảng Gold Star Schema & Marts
-│   ├── maintenance/job.py         # Spark Maintenance nén file & dọn snapshot Iceberg
-│   ├── quality/job.py             # Spark Quality chạy 198 bài kiểm định
-│   └── common/                    # Catalog, audit logging, SparkSession, validation
-├── docker-compose.yml             # Hạ tầng lõi: MinIO, PostgreSQL, Spark Master & Worker
-├── docker-compose.query.yml       # Tầng truy vấn phân tán: Trino Query Engine
-├── docker-compose.orchestration.yml # Tầng điều phối: Airflow Webserver, Scheduler & Pools
-├── docker-compose.bi.yml          # Tầng phân tích kinh doanh: Apache Superset BI
-├── docker-compose.monitoring.yml  # Giám sát: Prometheus, Grafana, Blackbox, MailHog
-├── NHAT_KY_REBUILD_LAKEHOUSE.md   # Nhật ký kỹ thuật chi tiết 12 chặng rebuild thực tế
-└── pyproject.toml                 # Cấu hình gói và phụ thuộc Python chuẩn
+│   ├── bronze/                    # Spark Ingestion tạo 9 bảng Iceberg Bronze (khóa pg_advisory_lock)
+│   ├── silver/                    # Spark Transform tạo 8 bảng Silver + 8 bảng cách ly Quarantine
+│   ├── gold/                      # Spark Modeling 14 bảng Gold (Broadcast Join + SortWithinPartitions)
+│   ├── maintenance/               # Spark Maintenance nén file 128MB & dọn snapshot Iceberg
+│   ├── quality/                   # Spark Quality chạy 198 bài kiểm định
+│   └── common/                    # SparkSession V3 (AQE, DPP, Memory 0.8/0.2), audit, iceberg, validation
+└── remove/                        # Thư mục lưu trữ các tệp lịch sử/bản nháp cũ đã dọn dẹp
 ```
 
 ---
@@ -289,16 +276,15 @@ docker exec olist-lakehouse-airflow-scheduler-1 airflow dags trigger olist_maint
 
 ---
 
-## 7. Tài Liệu Kế Thừa & Hướng Dẫn Chi Tiết
+## 7. Bản Đồ Hệ Thống Tài Liệu Chính Thức (Phiên Bản V3 Senior)
 
-Mời bạn tham khảo hệ thống tài liệu chuyên sâu trong thư mục [`docs/`](docs/):
-* 🧭 [**HƯỚNG DẪN SỬ DỤNG**](huong_dan_su_dung.md): **đọc đầu tiên nếu bạn muốn vận hành hệ thống** —
-  bật/tắt cụm, chạy pipeline, truy vấn, kịch bản demo 10 phút, bảng tra sự cố thường gặp.
-* 🏁 [**BÁO CÁO NGHIỆM THU TOÀN DIỆN**](docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md): tài liệu
-  **quan trọng nhất** — kết quả 5 task, số liệu benchmark đo thực tế trên 8 bài chạy, danh sách 53 sai
-  sót tài liệu đã sửa, 8 phát hiện ngoài phạm vi nhiệm vụ và 9 ý tưởng nâng cấp trình Sếp duyệt.
-* 📖 [**Bản So Sánh Chi Tiết Bản Cũ vs. Bản Rebuild**](docs/SO_SANH_BAN_CU_VA_MOI.md): Làm rõ các điểm over-engineering đã loại bỏ và tính ưu việt của kiến trúc mới.
-* 🚀 [**Đề Xuất Nâng Cấp Kỹ Thuật (Recommend Updates)**](docs/RECOMMEND_UPDATES.md): Hướng dẫn sinh 6 tập dataset test tải/chịu lỗi, cấu hình cảnh báo Email SMTP, và tối ưu hóa Spark/BI.
-* 📋 [**Tài Liệu Bàn Giao Dành Cho Agent Kế Thừa**](docs/AGENT_HANDOFF_TASKS.md): Quy chuẩn lập trình, danh sách task ưu tiên, yêu cầu viết báo cáo sau khi hoàn thành.
-* 💡 [**Ý Tưởng Nâng Cấp Dài Hạn**](docs/Y_TUONG_NANG_CAP_DU_AN.md): Bản thiết kế kiến trúc Streaming Real-time, dbt-core, Data Governance & Cloud Migration.
-* 📝 [**Nhật Ký Rebuild Toàn Diện**](NHAT_KY_REBUILD_LAKEHOUSE.md): Ghi chép 12 chặng triển khai thực tế từ con số 0.
+* 🌟 [**CẨM NANG KIẾN TRÚC TOÀN DIỆN (ZERO-TO-HERO V3)**](CAM_NANG_KIEN_TRUC_TOAN_DIEN_OLIST_LAKEHOUSE_V3.md): **Đọc đầu tiên để hiểu trọn vẹn hệ thống** — giải thích bình dân mọi thành phần từ Medallion, Kimball Star Schema, khóa nguyên tử Iceberg, thuật toán Kahn, đến tối ưu Spark V3 và bộ câu hỏi-đáp bảo vệ đồ án.
+* 📊 [**BÁO CÁO ĐỐI SOÁT THỰC NGHIỆM BENCHMARK (V1 vs. V2 vs. V3)**](KE_HOACH_BENCHMARK_TOI_UU_SPARK.md): Số liệu thực nghiệm 24 lượt chạy chứng minh V3 tăng tốc **3.0x – 4.3x** và cắt giảm **~3.6 GiB RAM** trên Airflow Scheduler:
+  * [Bảng tổng hợp V1 (Baseline)](docs/reports/benchmarks/v1_baseline/TONG_HOP_V1.md)
+  * [Bảng tổng hợp V2 (Task 5)](docs/reports/benchmarks/v2_current/TONG_HOP_V2.md)
+  * [Bảng tổng hợp V3 (Senior)](docs/reports/benchmarks/v3_senior/TONG_HOP_V3.md)
+* 🧭 [**HƯỚNG DẪN SỬ DỤNG NHANH & DEMO 10 PHÚT**](huong_dan_su_dung.md): Cách bật/tắt cụm, chạy pipeline, truy vấn Trino, kịch bản demo 10 phút và bảng tra sự cố thường gặp.
+* 🛠️ [**CẨM NANG THAM QUAN & THỰC HÀNH HỆ THỐNG**](HUONG_DAN_THAM_QUAN_HE_THONG.md): Hướng dẫn thực hành chuyên sâu từng dịch vụ trên Linux/Ubuntu.
+* 📦 [**HƯỚNG DẪN CÀI ĐẶT CHO NHÓM**](CAI_DAT_CHO_NHOM.md): 5 bước dựng lại toàn bộ hệ thống trên máy mới từ gói `olist-lakehouse-images.tar`.
+* 🏁 [**BÁO CÁO NGHIỆM THU TOÀN DIỆN**](docs/reports/BAO_CAO_HOAN_THANH_TOAN_DIEN_LAKEHOUSE.md) & [**ĐÁNH GIÁ LỘ TRÌNH PRODUCTION**](docs/reports/DANH_GIA_HIEN_TRANG_VA_LO_TRINH_PRODUCTION.md).
+* 📖 [**So Sánh Chi Tiết Bản Cũ vs. Bản Mới**](docs/SO_SANH_BAN_CU_VA_MOI.md) & [**Nhật Ký Rebuild Toàn Diện**](NHAT_KY_REBUILD_LAKEHOUSE.md).

@@ -13,7 +13,7 @@ def main() -> int:
     pool = payload[0]
     if not isinstance(pool, dict):
         return 1
-    return 0 if pool.get("pool") == "lakehouse_writes" and pool.get("slots") == "8" else 1
+    return 0 if pool.get("pool") == "lakehouse_writes" and str(pool.get("slots")) == "2" else 1
 
 
 if __name__ == "__main__":

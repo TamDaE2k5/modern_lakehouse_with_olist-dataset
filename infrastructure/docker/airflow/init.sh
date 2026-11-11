@@ -23,9 +23,7 @@ fi
 
 airflow db check
 
-airflow pools set lakehouse_writes 8 "Serialize lakehouse writers and maintenance"
+# V3 Senior Optimization: Giới hạn pool lakehouse_writes ở 2 slots để cắt giảm ~3.6 GiB RAM Scheduler
+airflow pools set lakehouse_writes 2 "Serialize lakehouse writers and maintenance (V3 Senior: 2 slots)"
 airflow pools get lakehouse_writes --output json \
   | python /opt/lakehouse/airflow/verify_pool.py
-
-# V3 Optimization: Hạ pool lakehouse_writes từ 8 xuống 2 slots để cắt giảm ~4 GiB RAM Scheduler
-airflow pools set lakehouse_writes 2 "Gioi han 2 slot de tiet kiem RAM cho V3 (Senior Proposal)"
